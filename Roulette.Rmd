@@ -250,4 +250,5 @@ hist(walk_out_play, breaks = 10)
 
 # Estimated earnings
 mean(walk_out_play)
+
 ```
