@@ -158,12 +158,12 @@ b <- matrix(nrow = 100, ncol = 32)
 
 for(i in seq(1, 32)){
   for(j in seq_along(walk_out_money)){
-    b[j, i] <- one_series(B= 10 * i, W = 300, L = 1000, M = 200) %>% get_last
+    b[j, i] <- (one_series(B= 10*i, W = 300, L = 1000, M = 200) - 10*i) %>% get_last
   }
 }
 
 # Estimated earnings
-mean_earnings <- colMeans(b) - 200
+mean_earnings <- colMeans(b)
 
 df1 <- as.data.frame(mean_earnings)
 df1["Budget"] <- seq(10,320,10)
