@@ -138,15 +138,21 @@ mean(walk_out_money > 200)
 mean(walk_out_money - 200)
 ```
 
-### 1. In Figure 1, I demonstrate the example of the evolvement of grambler earnings  over a series of wagers at the roulette wheel.
+### 1. In Figure 1, I demonstrate some examples of grambler earnings over a series of wagers at the roulette wheel.
 
 ```{r}
 # Q1
 set.seed(2)
-earning <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
-plot(earning, main = "Figure 1: Gamblers earnings / losses over time", xlab = "play number", 
-     ylab = "earnings", type ="b")
+earning1 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
+earning2 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
+earning3 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
+plot(earning1, main = "Figure 1: Gamblers earnings / losses over time", xlab = "play number", 
+     ylab = "earnings", type ="b", col = "red")
+lines(earning2, xlab = "play number", ylab = "earnings", col = "blue")
+lines(earning3, xlab = "play number", ylab = "earnings", col = "green")
 ```
+
+
 
 ```{r}
 # in class code
@@ -279,6 +285,11 @@ df4 %>%
 
 ### 3. The average number of plays is at around 200.
 
+In order to estimate the average number of plays before stopping, we need to find the number of plays in each series of play. We can easily know that the length of the one_series function represents the number of plays. This is because one_series function return the vector which stores all the budget over series of plays. If we count the number of budget, we can get the number of plays in this series.
+
+Then, we can simulate 100 times and average the results.
+
+
 ```{r}
 # Q4: average number of plays
 # Simulation
@@ -316,7 +327,6 @@ mean(walk_out_play)
 1) The player's risk preference will affect the result. If he prefers risk aversion, he will stop playing afer losing a small amount of money.
 
 2) The player's mood is changing in the whole process of playing. This will affect the strategy he choose to use.
-
 
 
 
