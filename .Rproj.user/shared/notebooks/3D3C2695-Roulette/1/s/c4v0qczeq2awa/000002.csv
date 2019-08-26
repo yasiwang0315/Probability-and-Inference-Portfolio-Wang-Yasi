@@ -1,4 +1,0 @@
-"0","# Q2"
-"0","earning <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200"
-"0","plot(earning, main = ""Gamblers earnings / losses over time"", xlab = ""play number"", "
-"0","     ylab = ""earnings"")"
