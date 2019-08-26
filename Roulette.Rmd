@@ -154,19 +154,26 @@ plot(earning, main = "Gamblers earnings / losses over time", xlab = "play number
 ```{r}
 # change the budget
 walk_out_money <- rep(NA, 100)
-b <- matrix(nrow = 100, ncol = 16)
+b <- matrix(nrow = 100, ncol = 32)
 
-for(i in seq(1, 16)){
+for(i in seq(1, 32)){
   for(j in seq_along(walk_out_money)){
-    b[j, i] <- one_series(B= 20 * i, W = 300, L = 1000, M = 200) %>% get_last
+    b[j, i] <- one_series(B= 10 * i, W = 300, L = 1000, M = 200) %>% get_last
   }
 }
 
 # Estimated earnings
 mean_earnings <- colMeans(b) - 200
 
+df1 <- as.data.frame(mean_earnings)
+df1["Budget"] <- seq(10,320,10)
+df1 %>%
+  ggplot(mapping = aes(x = Budget, y = mean_earnings)) +
+  geom_point() +
+  geom_smooth()
+
 # plot earnings
-plot(mean_earnings)
+# plot(mean_earnings)
 
 ```
 
@@ -174,56 +181,77 @@ plot(mean_earnings)
 # change the winning
 
 walk_out_money <- rep(NA, 100)
-w <- matrix(nrow = 100, ncol = 16)
+w <- matrix(nrow = 100, ncol = 32)
 
-for(i in seq(1, 16)){
+for(i in seq(1, 32)){
   for(j in seq_along(walk_out_money)){
-    w[j, i] <- one_series(B= 200, W = 40 * i, L = 1000, M = 200) %>% get_last
+    w[j, i] <- one_series(B= 200, W = 20 * i, L = 1000, M = 200) %>% get_last
   }
 }
 
 # Estimated earnings
 mean_earnings <- colMeans(w) - 200
 
+df2 <- as.data.frame(mean_earnings)
+df2["Winning_threshold"] <- seq(20,640,20)
+df2 %>%
+  ggplot(mapping = aes(x = Winning_threshold, y = mean_earnings)) +
+  geom_point() +
+  geom_smooth()
+
 # plot earnings
-plot(mean_earnings)
+#plot(mean_earnings)
 ```
 
 
 ```{r}
 # change time threshold
 walk_out_money <- rep(NA, 100)
-l <- matrix(nrow = 100, ncol = 16)
+l <- matrix(nrow = 100, ncol = 32)
 
-for(i in seq(1, 16)){
+for(i in seq(1, 32)){
   for(j in seq_along(walk_out_money)){
-    l[j, i] <- one_series(B= 200, W = 300, L = 20 * i, M = 200) %>% get_last
+    l[j, i] <- one_series(B= 200, W = 300, L = 20 * (i-1), M = 200) %>% get_last
   }
 }
 
 # Estimated earnings
 mean_earnings <- colMeans(l) - 200
 
+df3 <- as.data.frame(mean_earnings)
+df3["Time_threshold"] <- seq(0,620,20)
+df3 %>%
+  ggplot(mapping = aes(x = Time_threshold, y = mean_earnings)) +
+  geom_point() +
+  geom_smooth()
+
 # plot earnings
-plot(mean_earnings)
+#plot(mean_earnings)
 ```
 
 ```{r}
 # change max
 walk_out_money <- rep(NA, 100)
-m <- matrix(nrow = 100, ncol = 16)
+m <- matrix(nrow = 100, ncol = 32)
 
-for(i in seq(1, 16)){
+for(i in seq(1, 32)){
   for(j in seq_along(walk_out_money)){
-    m[j, i] <- one_series(B= 200, W = 300, L = 1000, M = 10 * i) %>% get_last
+    m[j, i] <- one_series(B= 200, W = 300, L = 1000, M = 10 * (i-1)) %>% get_last
   }
 }
 
 # Estimated earnings
 mean_earnings <- colMeans(m) - 200
 
+df4 <- as.data.frame(mean_earnings)
+df4["Maximum_wager"] <- seq(0,310,10)
+df4 %>%
+  ggplot(mapping = aes(x = Maximum_wager, y = mean_earnings)) +
+  geom_point() +
+  geom_smooth()
+
 # plot earnings
-plot(mean_earnings)
+#plot(mean_earnings)
 ```
 
 
@@ -250,5 +278,4 @@ hist(walk_out_play, breaks = 10)
 
 # Estimated earnings
 mean(walk_out_play)
-
 ```
