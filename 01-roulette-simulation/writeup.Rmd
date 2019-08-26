@@ -6,6 +6,8 @@ output: html_notebook
 ```{r}
 library(magrittr) # needs to be run every time you start R and want to use %>%
 library(dplyr)
+library(tidyverse)
+library(ggplot2)
 ```
 
 ```{r}
@@ -27,6 +29,7 @@ library(dplyr)
 
 ```{r}
 one_play <- function(state){
+    #browser() ## what's this?
   
     # Wager
     proposed_wager <- ifelse(state$previous_win, 1, 2*state$previous_wager)
@@ -61,6 +64,7 @@ one_play <- function(state){
 
 
 stop_play <- function(state){
+  #browser()
   if(state$B <= 0) return(TRUE)
   if(state$plays >= state$L) return(TRUE)
   if(state$B >= state$W) return(TRUE)
@@ -118,10 +122,11 @@ get_last <- function(x) x[length(x)]
 
 ```{r}
 # Simulation
-walk_out_money <- rep(NA, 10000)
+walk_out_money <- rep(NA, 100)
 for(j in seq_along(walk_out_money)){
   walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
 }
+
 
 # Walk out money distribution
 hist(walk_out_money, breaks = 10)
@@ -132,31 +137,41 @@ mean(walk_out_money > 200)
 # Estimated earnings
 mean(walk_out_money - 200)
 ```
-```{r}
-library(tidyverse)
-library(ggplot2)
-```
+
+### 1. In Figure 1, I demonstrate the example of the evolvement of grambler earnings  over a series of wagers at the roulette wheel.
 
 ```{r}
-library(tidyverse)
-library(ggplot2)
-```
-
-
-
-```{r}
-# Q2
+# Q1
+set.seed(2)
 earning <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
-plot(earning, main = "Gamblers earnings / losses over time", xlab = "play number", 
-     ylab = "earnings")
+plot(earning, main = "Figure 1: Gamblers earnings / losses over time", xlab = "play number", 
+     ylab = "earnings", type ="b")
 ```
+
+```{r}
+# in class code
+
+set.seed(2)
+s1 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
+plot(s1[1:120], type = "b")
+
+set.seed(3)
+s1 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
+plot(s1)
+
+```
+
+### 2.1. When we set the budget from 10 to 300 (budget has to be lower than winning threshold), average earnings will first decrease and then increase with the increase of budget. 
 
 ```{r}
 # change the budget
 walk_out_money <- rep(NA, 100)
-b <- matrix(nrow = 100, ncol = 32)
+b <- matrix(nrow = 100, ncol = 30)
 
-for(i in seq(1, 32)){
+
+# For loop eg:    for (i in 1:100) {...}
+
+for(i in seq(1, 30)){
   for(j in seq_along(walk_out_money)){
     b[j, i] <- (one_series(B= 10*i, W = 300, L = 1000, M = 200) - 10*i) %>% get_last
   }
@@ -166,16 +181,19 @@ for(i in seq(1, 32)){
 mean_earnings <- colMeans(b)
 
 df1 <- as.data.frame(mean_earnings)
-df1["Budget"] <- seq(10,320,10)
+df1["Budget"] <- seq(10,300,10)
 df1 %>%
-  ggplot(mapping = aes(x = Budget, y = mean_earnings)) +
+  ggplot(ggtitle("Figure 2: Change the budget"), mapping = aes(x = Budget, y = mean_earnings)) +
   geom_point() +
   geom_smooth()
 
 # plot earnings
-# plot(mean_earnings)
+#plot(x = seq(10, 300, 10), y = mean_earnings, xlab = "budget", type = "l")
 
 ```
+
+
+### 2.2 When we set the winning threshold from 220 to 840, the average earnings will decrease.
 
 ```{r}
 # change the winning
@@ -185,7 +203,7 @@ w <- matrix(nrow = 100, ncol = 32)
 
 for(i in seq(1, 32)){
   for(j in seq_along(walk_out_money)){
-    w[j, i] <- one_series(B= 200, W = 20 * i, L = 1000, M = 200) %>% get_last
+    w[j, i] <- one_series(B= 200, W = 200 + 20 * i, L = 1000, M = 200) %>% get_last
   }
 }
 
@@ -193,7 +211,7 @@ for(i in seq(1, 32)){
 mean_earnings <- colMeans(w) - 200
 
 df2 <- as.data.frame(mean_earnings)
-df2["Winning_threshold"] <- seq(20,640,20)
+df2["Winning_threshold"] <- seq(220,840,20)
 df2 %>%
   ggplot(mapping = aes(x = Winning_threshold, y = mean_earnings)) +
   geom_point() +
@@ -203,6 +221,8 @@ df2 %>%
 #plot(mean_earnings)
 ```
 
+
+### 2.3 When we set the Time threshold from 0 to 620, we can see that there is a sharp decrease before 300 plays. After 300 plays, the average earnings are stable.
 
 ```{r}
 # change time threshold
@@ -228,6 +248,8 @@ df3 %>%
 # plot earnings
 #plot(mean_earnings)
 ```
+
+### 2.4 When we set Maximum wagers from 0 to 310, we can find some slight increase.
 
 ```{r}
 # change max
@@ -255,16 +277,12 @@ df4 %>%
 ```
 
 
-
-
-
-
-
-
+### 3. The average number of plays is at around 200.
 
 ```{r}
 # Q4: average number of plays
 # Simulation
+set.seed(123)
 num_play <- function(x) length(x) 
 
 walk_out_play <- rep(NA, 100)
@@ -272,10 +290,33 @@ for(j in seq_along(walk_out_play)){
   walk_out_play[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% num_play
 }
 
-# Walk out money distribution
-hist(walk_out_play, breaks = 10)
+## num_play, we can easily use length. they are the same
+
+# Walk out play distribution
+hist(walk_out_play, breaks = 100)
 
 
-# Estimated earnings
+
+# Estimated playing times
 mean(walk_out_play)
+
 ```
+### 4.1 Limitations of the simulation:
+
+1) When we do the simulation, we need a good theory and causal hypotheses. 
+
+2) The use of simulation requires very little time and resources. We don not need to do the experiment and collect the data in the real world. The only thing we need to do is to choose a theory and set up the parameters. But there still exists some skepticism. This is because most of today's analysis is based on reporting and building statistical models to describe what has happened in the past.
+
+3) Even though simulation doesn't require data, the validation of simulation often requires multiple data sources to achieve the confidence in its representation of real-world dynamics.
+
+4) Simulation need to take a lot of data to be input, so it usually need the computer with higher memory and processor speed.
+
+### 4.2 Sources of uncertainty
+
+1) The player's risk preference will affect the result. If he prefers risk aversion, he will stop playing afer losing a small amount of money.
+
+2) The player's mood is changing in the whole process of playing. This will affect the strategy he choose to use.
+
+
+
+
