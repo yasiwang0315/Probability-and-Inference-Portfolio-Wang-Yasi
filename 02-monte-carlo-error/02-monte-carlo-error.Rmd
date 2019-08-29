@@ -42,6 +42,8 @@ After generating one plot, now we start to do the simulation with multiple p val
 
 ```{r}
 
+# method 1
+
 set.seed(123)
 p <- c(.50, .25, .10, .05, .01)
 
@@ -63,6 +65,25 @@ for (j in seq(1, 5)) {
 
 }
 
+```
+
+
+```{r}
+# method 2
+
+p <- c(.50, .25, .10, .05, .01)
+
+abs_error <- rel_error <- matrix(nrow = 5, ncol = 14)
+
+for (j in seq(1, 5)) {
+  n = 2
+  for (i in seq(1, 14)) {
+    n <- n * 2
+    abs_error[j,i] <- mean(abs(rbinom(1000, n, p[j])/n - p[j]))
+    rel_error[j,i] <- abs_error[j,i]/p[j]
+  }
+
+}
 ```
 
 
