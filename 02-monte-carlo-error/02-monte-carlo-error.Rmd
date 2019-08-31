@@ -88,25 +88,69 @@ for (j in seq(1, 5)) {
 
 
 The scatter plot are shown below. We can find that with N increase, absolute error will decrease. And the larger the p value, the larger absolute error it is.
-```{r}
-
+```{r absolute error, fig.height=6}
 label <- c(2^2, 2^3, 2^4, 2^5,2^6, 2^7, 2^8, 2^9, 2^10, 2^11, 2^12, 2^13, 2^14, 2^15)
-plot(abs_error[1,1:14], col = "orange", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Absolute Error")
-axis(1, at = 1:14, labels = label, las = 1)
-lines(abs_error[2,1:14], col = "purple", type = "b")
-lines(abs_error[3,1:14], col = "green", type = "b")
-lines(abs_error[4,1:14], col = "blue", type = "b")
-lines(abs_error[5,1:14], col = "red", type = "b")
+plot(abs_error[1,], col = "orange", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Absolute Error", pch=16, lwd = 4)
+axis(1, at = 1:14, labels = label, las = 2)
+lines(abs_error[2,], col = "purple", type = "b", pch=16, lwd = 4)
+lines(abs_error[3,], col = "green", type = "b", pch=16, lwd = 4)
+lines(abs_error[4,], col = "blue", type = "b", pch=16, lwd = 4)
+lines(abs_error[5,], col = "red", type = "b", pch=16, lwd = 4)
+
+legend(12, 0.17, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1,
+       title="p value", text.font=4, bg='lightblue')
 ```
 
 
 As for relative error, we can find that with N increase, error will decrease. And the larger the p value, the smaller error.
-```{r}
-plot(rel_error[1,1:14], col = "orange", type = "b", ylim = c(0,2), xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Relative Error")
-axis(1, at = 1:14, labels = label, las = 1)
-lines(rel_error[2,1:14], col = "purple", type = "b")
-lines(rel_error[3,1:14], col = "green", type = "b")
-lines(rel_error[4,1:14], col = "blue", type = "b")
-lines(rel_error[5,1:14], col = "red", type = "b")
-```
+```{r relative error, fig.height=6}
+plot(rel_error[1,1:14], col = "orange", type = "b", ylim = c(0,2), xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Relative Error", pch=16, lwd = 4)
+axis(1, at = 1:14, labels = label, las = 2)
+lines(rel_error[2,1:14], col = "purple", type = "b", pch=16, lwd = 4)
+lines(rel_error[3,1:14], col = "green", type = "b", pch=16, lwd = 4)
+lines(rel_error[4,1:14], col = "blue", type = "b", pch=16, lwd = 4)
+lines(rel_error[5,1:14], col = "red", type = "b", pch=16, lwd = 4)
 
+legend(12, 1.9, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1,
+       title="p value", text.font=4, bg='lightblue')
+```
+Then, I scale $log10$ to the y-axis. Let's see what will happen.
+
+```{r log absolute error, fig.height=6}
+
+log_abs <- log10(abs_error)
+
+
+label <- c(2^2, 2^3, 2^4, 2^5,2^6, 2^7, 2^8, 2^9, 2^10, 2^11, 2^12, 2^13, 2^14, 2^15)
+plot(log_abs[1,1:14], col = "orange", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Absolute Error", pch=16, lwd = 4)
+axis(1, at = 1:14, labels = label, las = 2)
+lines(log_abs[2,1:14], col = "purple", type = "b", pch=16, lwd = 4)
+lines(log_abs[3,1:14], col = "green", type = "b", pch=16, lwd = 4)
+lines(log_abs[4,1:14], col = "blue", type = "b", pch=16, lwd = 4)
+lines(log_abs[5,1:14], col = "red", type = "b", pch=16, lwd = 4)
+
+legend(12, -0.8, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1,
+       title="p value", text.font=4, bg='lightblue')
+
+```
+```{r log relative error, fig.height=6}
+log_rel <- log10(rel_error)
+
+
+label <- c(2^2, 2^3, 2^4, 2^5,2^6, 2^7, 2^8, 2^9, 2^10, 2^11, 2^12, 2^13, 2^14, 2^15)
+plot(log_rel[5,1:14], col = "red", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Relative Error", pch=16, lwd = 4)
+axis(1, at = 1:14, labels = label, las = 2)
+lines(log_rel[4,1:14], col = "blue", type = "b", pch=16, lwd = 4)
+lines(log_rel[3,1:14], col = "green", type = "b", pch=16, lwd = 4)
+lines(log_rel[2,1:14], col = "purple", type = "b", pch=16, lwd = 4)
+lines(log_rel[1,1:14], col = "orange", type = "b", pch=16, lwd = 4)
+
+legend(12, 0.2, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1, 
+       title="p value", text.font=4, bg='lightblue')
+
+```
+If we change y-axis is on the $log10$ scale, we can found that there is a liner relationship between Absolute error/Relative error and N.
