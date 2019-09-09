@@ -191,9 +191,13 @@ result <- 0.5 * dnbinom(3, 4, 0.55) / (0.5 * dnbinom(3, 4, 0.55) + 0.5 *dnbinom(
 result
 ```
 
-# 5. Conclusion
+# 5. Limitations and Conclusions
 
-Bernoulli distribution and negative Bernoulli distribution are very important concepts in discrete probability distribution. Many real- world phenomenons are related them. Having the insight of discrete probability can help us better understand and adapted to the life.
+There are a few limitations of the calculation in our simulation. $P_B$ is always very hard to get. We even have to collect thousands of data to get this single probability. 
+
+Moreover, probability is only probability. But in the real-world competition, the results will be influenced by many factors. We can not only believe the theoretical winning probability, but also combine some other factors like the weather, players' physical and psychological conditions.
+
+Bernoulli distribution and negative Bernoulli distribution are very important concepts in discrete probability distribution. Many real- world phenomenons are related them. Having the insight of discrete probability can help us better understand and be adapted to the life.
 
 
 
