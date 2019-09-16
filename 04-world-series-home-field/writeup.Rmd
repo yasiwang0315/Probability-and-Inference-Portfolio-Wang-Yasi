@@ -177,7 +177,7 @@ rel_error_2 <- abs_error_2/p2
 # Factors that affect the difference in winning probabilites
 
 ### 1) *P*<sub>*B*</sub>
-In order to explore whether the difference in probabilites (with vs without home field advantage) depend on *P*<sub>*B*</sub>, we wrote a diff1 function. It calculates the probability of with home field advantage and without home field advantage, and return the difference between them. The probability that Braves wins the series without home field advange is fixed, 0.608.
+In order to explore whether the difference in probabilites (with vs without home field advantage) depend on *P*<sub>*B*</sub> , we wrote a diff1 function. It calculates the probability of with home field advantage and without home field advantage, and return the difference between them. The probability that Braves wins the series without home field advange is fixed, 0.608.
 
 The graph below shows the relationship: As *P*<sub>*B*</sub> increases (from 0.51 to 1), the winning probability with home field advantage will first increase and then decrease. Correspondingly, the difference will first increase from -0.0134 to 0.018 (estimated) and then decrease to 0.
 
