@@ -1,6 +1,9 @@
 # Probability-and-Inference-Portfolio-Wang-Yasi
 Data science 5620: Probability
 
+Project 4:
+[relative HTML file](04-world-series-home-field/writeup.html)
+
 Project 3:
 [relative HTML file](03-discrete-probability-calculations/writeup.html)
 
@@ -9,3 +12,5 @@ Project 2:
 
 Project 1:
 [relative HTML file](01-roulette-simulation/writeup.nb.html)
+
+
