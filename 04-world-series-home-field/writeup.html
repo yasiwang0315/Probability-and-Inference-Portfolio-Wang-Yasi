@@ -452,9 +452,28 @@ p2 &lt;-<span class="st"> </span>apo[, <span class="kw">sum</span>(p), overall_o
 </div>
 <div id="simulation" class="section level1">
 <h1>Simulation</h1>
-<div id="without-home-advantage" class="section level3">
-<h3>Without home advantage</h3>
-<p>Assuming that <em>P</em><sub><em>B</em></sub> = 0.55, when we simulate 100000 series, the probability that Braves win the series is 0.609.</p>
+<div id="without-vs-without-home-advantage" class="section level3">
+<h3>Without VS without home advantage</h3>
+<p>Assuming that <em>P</em><sub><em>B</em></sub> = 0.55, when we simulate 100000 series, the probability that Braves win the series is:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center"></th>
+<th align="center">without home field advantage</th>
+<th align="center">with home field advantage</th>
+<th align="center">difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">probability</td>
+<td align="center">0.609</td>
+<td align="center">0.607</td>
+<td align="center">0.002</td>
+</tr>
+</tbody>
+</table>
+<p>The difference is due to whether counting home field advantage as a factor. Because in this series, Braves only has three home field games, which means it loses home field advantage in the overall series of game. Thus, if we take home field advantage in to consideration, the probability that Braves win the series will decrease.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># without home advantage </span>
 
 <span class="kw">set.seed</span>(<span class="dv">123</span>)
@@ -467,13 +486,7 @@ count =<span class="st"> </span><span class="dv">0</span>
     count =<span class="st"> </span>count <span class="op">+</span><span class="st"> </span><span class="dv">1</span>
   }
   p3 =<span class="st"> </span>count <span class="op">/</span><span class="st"> </span><span class="dv">100000</span>
-}
-p3</code></pre></div>
-<pre><code>## [1] 0.60935</code></pre>
-</div>
-<div id="with-home-advantage" class="section level3">
-<h3>With home advantage</h3>
-<p>We also simulate 100000 series, the probability that Braves win the series is 0.607.</p>
+}</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># with home advantage </span>
 
 <span class="kw">set.seed</span>(<span class="dv">10</span>)
@@ -490,21 +503,18 @@ count =<span class="st"> </span><span class="dv">0</span>
     count =<span class="st"> </span>count <span class="op">+</span><span class="st"> </span><span class="dv">1</span>
   }
   p4 =<span class="st"> </span>count <span class="op">/</span><span class="st"> </span><span class="dv">100000</span>
-}
-
-p4</code></pre></div>
-<pre><code>## [1] 0.60669</code></pre>
+}</code></pre></div>
 </div>
 </div>
 <div id="absolute-error-and-relative-error" class="section level1">
 <h1>Absolute error and relative error</h1>
-<div id="without-home-advantage-1" class="section level3">
+<div id="without-home-advantage" class="section level3">
 <h3>Without home advantage</h3>
 <p>With home field advantage, absolute error is p3 - p1 = 0.00106, and relative error is 0.0017.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">abs_error_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">abs</span>(p3 <span class="op">-</span><span class="st"> </span>p1)
 rel_error_<span class="dv">1</span> &lt;-<span class="st"> </span>abs_error_<span class="dv">1</span><span class="op">/</span>p1</code></pre></div>
 </div>
-<div id="with-home-advantage-1" class="section level3">
+<div id="with-home-advantage" class="section level3">
 <h3>With home advantage</h3>
 <p>Without home field advantage, absolute error is 0.0025, and relative error equals to 0.0041</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">abs_error_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">abs</span>(p4 <span class="op">-</span><span class="st"> </span>p2)

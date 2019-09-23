@@ -105,9 +105,15 @@ p2 <- apo[, sum(p), overall_outcome][[2]][[1]]
 
 # Simulation
 
-### Without home advantage 
+### Without VS without home advantage 
 
-Assuming that *P*<sub>*B*</sub> = 0.55, when we simulate 100000 series, the probability that Braves win the series is 0.609.
+Assuming that *P*<sub>*B*</sub> = 0.55, when we simulate 100000 series, the probability that Braves win the series is:
+
+|          |without home field advantage|with home field advantage|difference|
+|:--------:|:----:|:----:|:----:|
+|probability| 0.609  | 0.607|0.002|
+
+The difference is due to whether counting home field advantage as a factor. Because in this series, Braves only has three home field games, which means it loses home field advantage in the overall series of game. Thus, if we take home field advantage in to consideration, the probability that Braves win the series will decrease.
 
 ```{r}
 # without home advantage 
@@ -123,12 +129,9 @@ for (i in 1:100000) {
   }
   p3 = count / 100000
 }
-p3
 
 ```
-### With home advantage 
 
-We also simulate 100000 series, the probability that Braves win the series is 0.607.
 
 ```{r}
 # with home advantage 
@@ -148,8 +151,6 @@ for (i in 1:100000) {
   }
   p4 = count / 100000
 }
-
-p4
 
 ```
 
