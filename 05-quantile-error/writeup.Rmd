@@ -40,7 +40,7 @@ We assume that we have 4 distribution:
 In the simulation, we set:
 
 
-|    Parameter      ||
+|    Parameter      | |
 |:--------:|:----:|
 |sample size| N = 200  |
 |numbers of simulation| 5000 times|
