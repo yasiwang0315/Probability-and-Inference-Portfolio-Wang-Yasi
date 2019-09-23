@@ -1,0 +1,342 @@
+---
+title: "05-quantile-error"
+date: "9/22/2019"
+author: "Yasi Wang"
+output:
+  html_document: 
+    code_folding: hide
+    highlight: tango
+    theme: cerulean
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+editor_options: 
+  chunk_output_type: inline  
+---  
+
+# 1. Introduction
+
+### 1.1 Median
+The median is an important quantity in data analysis. It represents the middle value of the data distribution. Estimates of the median, however, have a degree of uncertainty because (a) the estimates are calculated from a finite sample and (b) the data distribution of the underlying data is generally unknown. One important roles of a data scientist is to quantify and to communicate the degree of uncertainty in his or her data analysis.
+
+In this blog, I'll use the simulation to demonstrate the variation of the median (and a range of other quantiles).
+
+### 1.2 Sampling Distribution
+
+The sampling distribution is the probability distribution of a given random-sample-based statistic. It may be considered as the distribution of the statistic for all possible samples from the same population of a given sample size. Once we simulate multiple sampling distributions of size N, We can thus calculate the quantiles of each sampling distribution easily.
+
+# 2. Setup
+We assume that we have 4 distribution: 
+
+1) standard normal distribution;
+
+2) exponential distribution with rate = 1;
+
+3) a mixture distribution with Probability density function (PDF) = .5\*dnorm(x) + .3\*dnorm(x,4) + .2\*dnorm(x,-4,2);
+
+4) a mixture distribution with PDF =  .5\*dbeta(x,5,1) + .5*dbeta(x,1,5). 
+
+
+In the simulation, we set:
+
+
+|    Parameter      ||
+|:--------:|:----:|
+|sample size| N = 200  |
+|numbers of simulation| 5000 times|
+
+
+The length of the middle 95% of the sampling distribution is calculated by caculating the difference between 2.5% and 97.5% percentiles of the sampling distribution. For each distribution, our goal is to:
+
+
+1) from sampling distribution: generate the figure to reflect the relationship between the length and the quantiles.
+
+
+2) transform sampling distribution to population distribution: calculate the density (relative likelihood) corresponding to the p<sup>th</sup> quantiles from the previous figure, and generate the figure to reflect the relationship of length and density.
+
+```{r include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(latex2exp)
+```
+
+
+# 3. Goal 1: Quantiles and length
+### 3.1 Normal distribution
+
+```{r}
+set.seed(123)
+
+y_norm <- matrix(NA, nrow = 5000, ncol = 200)
+pth_quantile <- seq(0.05,0.95,0.05)
+num <- 200 * pth_quantile
+len_norm <- rep(NA, 19)
+
+for (i in (1:5000)) {
+  y_norm[i,] <- sort(rnorm(200))
+}
+  
+for (j in (1:19)) {
+  len_norm[j] <- quantile(y_norm[ ,num[j]], 0.975) - quantile(y_norm[ ,num[j]], 0.025)
+}
+  
+plot(y = len_norm, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution",cex.lab = 1.3, pch = 16, type = 'b')
+```
+Length can represent the stability of the simulation. If length in one quantile is very small, the random values in this quantile will be largly clustered together. If the length is large, the variation will be larger.
+
+In the standard normal distribution, we can see that from the 5<sup>th</sup> to 50<sup>th</sup> quantile, the length will decrease, and from 50<sup>th</sup> to 95<sup>th</sup> quantile, the length will then increase. This means the 50% quantile has the shortest length with the most precision in the simulation. And the length gets larger with less presicion when away from 50<sup>th</sup> quantile.
+
+
+### 3.2 Exponential distribution
+
+```{r}
+set.seed(123)
+
+y_exp <- matrix(NA, nrow = 5000, ncol = 200)
+num <- 200*pth_quantile
+len_exp <- rep(NA, 19)
+
+for (i in (1:5000)) {
+  y_exp[i,] <- sort(rexp(n = 200, rate = 1))
+}
+  
+for (j in (1:19)) {
+  len_exp[j] <- quantile(y_exp[ ,num[j]], 0.975) - quantile(y_exp[ ,num[j]], 0.025)
+}
+  
+plot(y = len_exp, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution",cex.lab = 1.3, pch = 16, type = 'b')
+
+```
+
+In the exponential distribution, we can see that the length is inceasing as the quantile increases. This means that the larger quantile will have larger length of the sampling distribution, ans thus will have less precision.
+
+
+### 3.3 First mixture distribution
+We set following functions to simulate and calculate the probability and density of the first mixture distribution.
+
+```{r}
+rf3 <- function(N){
+  G <- sample(0:2, N, replace = TRUE, prob = c(5,3,2))
+  (G==0)*rnorm(N) + (G==1)*rnorm(N,4) + (G==2)*rnorm(N,-4,2)
+}
+
+pf3 <- function(x){
+  .5*pnorm(x) + .3*pnorm(x,4) + .2*pnorm(x,-4,2)
+}
+
+df3 <- function(x){
+  .5*dnorm(x) + .3*dnorm(x,4) + .2*dnorm(x,-4,2)
+}
+
+```
+
+
+
+
+```{r}
+roots<-rep(NA, 19)
+quantiles_mix3 <- matrix(NA,nrow = 5000,ncol = 19)
+p <- pth_quantile
+
+for (i in 1:5000) {
+  mix3 <- rf3(200)
+  for (j in 1:19) {
+    quantiles_mix3[i,j] <- quantile(mix3,0.05*j)
+    j <- j+1
+  }
+  i<-i+1
+}
+
+mix3.mid.lengths <- rep(NA,19)
+
+for (i in 1:19) {
+  mix3.mid.lengths[i] <- quantile(quantiles_mix3[ ,i], 0.975)-quantile(quantiles_mix3[ ,i], 0.025)
+}
+
+
+for(i in 1:length(p)){
+  pnew<-function(q) {
+    pf3(q)-p[i]
+    }
+  roots[i]<-uniroot(pnew, c(-100,100))[[1]]
+}
+
+# Prob 
+plot(y = mix3.mid.lengths, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution", cex.lab = 1.3, pch = 16, type = 'b')
+
+# Quant
+# plot(roots, mix3.mid.lengths)
+
+# Requirement 2
+#Density
+ #plot(df3(roots),mix3.mid.lengths)
+```
+
+According to the figure, we can find that the length has a large variation. The pattern is like a wave. The peaks are the point of 0.15<sup>th</sup> and 0.7<sup>th</sup> quantile. They have a relatively long length and low precision. For the throughs, 0.4<sup>th</sup> and 0.9<sup>th</sup> quantile have a relatively short length with high precision.
+
+
+### 3.4 Second mixture distribution
+We set following functions to simulate and calculate the probability and density of the second mixture distribution.
+
+```{r}
+#mixture distribution
+rf4 <- function(N){
+  G <- sample(0:1, N, replace = TRUE)
+  (G==0)*rbeta(N,5,1) + (G==1)*rbeta(N,1,5)
+}
+
+pf4 <- function(x){
+  .5*pbeta(x,5,1) + .5*pbeta(x,1,5)
+}
+
+df4 <- function(x){
+  .5*dbeta(x,5,1) + .5*dbeta(x,1,5)
+}
+```
+
+
+```{r}
+roots<-rep(NA, 19)
+quantiles_mix4 <- matrix(NA,nrow = 5000,ncol = 19)
+p <- seq(0.05,0.95,0.05)
+
+for (i in 1:5000) {
+  mix4 <- rf4(200)
+  for (j in 1:19) {
+    quantiles_mix4[i,j] <- quantile(mix4,0.05*j)
+    j <- j+1
+  }
+  i<-i+1
+}
+
+mix4.mid.lengths <- rep(NA,19)
+
+for (i in 1:19) {
+  mix4.mid.lengths[i] <- quantile(quantiles_mix4[ ,i], 0.975)-quantile(quantiles_mix4[ ,i], 0.025)
+}
+
+for(i in 1:length(p)){
+  pnew<-function(q) {
+    pf4(q)-p[i]
+    }
+  roots[i]<-uniroot(pnew, c(-100,100))[[1]]
+}
+
+plot(y = mix4.mid.lengths, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution", cex.lab = 1.3, pch = 16, type = 'b')
+
+# Quant
+# plot(roots, mix4.mid.lengths)
+
+# Requirement 2
+#Density
+# plot(df4(roots),mix4.mid.lengths)
+```
+We can find that this graph is symmetric, with the symmetry axis of x = 0.5<sup>th</sup> quantile. Also, 0.5<sup>th</sup> quantile has the largest length and lowest precision Away from 0.5<sup>th</sup> quantile, the length becomes smaller and the precision becomes larger.
+
+
+### 3.5 Summary
+According to the four distribution, we can find that the median (50% quantile) of standard normal distribution and the first mixsure distribution have the tightest sampling distribution.
+
+# 4. Density and length
+
+Now we transform sampling distribution to the population distribution, exploring the relationship of density and length in each distribution.
+
+### 4.1 Normal distribution
+```{r}
+dens_norm <- dnorm(qnorm(pth_quantile))
+plot(x = dens_norm, y = len_norm, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
+```
+In this graph, we can find that when the density increases, the length decreases. When the density reaches the highest (Learned from experience, we can know that in 50<sup>th</sup> quantile, the density is the largest), the length is the shortest. This is the same as the conclusion obtained in the sampling distribution.
+
+### 4.2 Exponential distribution
+```{r}
+dens_exp <- dexp(qexp(pth_quantile))
+plot(x = dens_exp, y = len_exp, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
+
+```
+Similarly, we can conclude that as the density increases, the length decreases, and the presicion increases.
+
+
+### 4.3 First mixture distribution
+```{r}
+plot(df3(roots),mix3.mid.lengths, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
+```
+In this graph, the trend for the change of length is still hard to captured. This is probably due to the complexity of the mixture distribution.
+
+### 4.4 Second mixture distribution
+```{r}
+plot(df4(roots),mix4.mid.lengths, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
+```
+In this mixture distribution, the length decreases (followed with the presicion increases) with the increase of density.
+
+### 4.5 Summary
+through the four distributions, we can conclude that when the density increases, the length decreases, the variation decreases, and thus the presicion increases. 
+
+For this property, if we want to make median have the tightest sampling distribution, we need to make the median have the largest density in the population distribution.
+
+
+# 5. Additional N
+
+Selected standard normal distribution, if we add additional lines for N = 400, 800, 1600. Let's see what would happen.
+
+```{r echo=FALSE}
+###
+y2 <- matrix(NA, nrow = 5000, ncol = 400)
+pth_quantile <- seq(0.05,0.95,0.05)
+num2 <- 400*pth_quantile
+len2 <- rep(NA, 19)
+
+for (i in (1:5000)) {
+  y2[i,] <- sort(rnorm(400))
+}
+  
+for (j in (1:19)) {
+  len2[j] <- quantile(y2[ ,num2[j]], 0.975) - quantile(y2[ ,num2[j]], 0.025)
+}
+
+
+###
+y3 <- matrix(NA, nrow = 5000, ncol = 800)
+pth_quantile <- seq(0.05,0.95,0.05)
+num3 <- 800*pth_quantile
+len3 <- rep(NA, 19)
+
+for (i in (1:5000)) {
+  y3[i,] <- sort(rnorm(800))
+}
+  
+for (j in (1:19)) {
+  len3[j] <- quantile(y3[ ,num3[j]], 0.975) - quantile(y3[ ,num3[j]], 0.025)
+}
+
+###
+y4 <- matrix(NA, nrow = 5000, ncol = 1600)
+pth_quantile <- seq(0.05,0.95,0.05)
+num4 <- 1600*pth_quantile
+len4 <- rep(NA, 19)
+
+for (i in (1:5000)) {
+  y4[i,] <- sort(rnorm(1600))
+}
+  
+for (j in (1:19)) {
+  len4[j] <- quantile(y4[ ,num4[j]], 0.975) - quantile(y4[ ,num4[j]], 0.025)
+}
+
+
+  
+plot(y = len_norm, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution",cex.lab = 1.3, type = 'b', ylim = c(0, 0.6), col = "orange", lwd = 3, pch = 16)
+lines(y = len2, x = pth_quantile, type = "b", col = "red", lwd = 3, pch = 16)
+lines(y = len3, x = pth_quantile, type = "b", col = "blue", lwd = 3, pch = 16)
+lines(y = len4, x = pth_quantile, type = "b", col = "purple", lwd = 3, pch = 16)
+
+legend("top", horiz = TRUE, legend=c("N = 200", "N = 400", "N = 800", "N = 1600"),
+       col=c("orange", "red", "blue", "purple"), lty=1:2, cex=0.8)
+
+
+```
+
+We can see that the pattern for each distribution is the same as N = 200. But when N goes up, the overall length decreases. This means the increase of the size of sampling distribution can make the variation smaller and thus increase the presicion. If N approaches positive infinity, the sampling distribution will be infinitely close to population distribution, and the length will be infinitely close to 0. 
+
+This suggests us that if we want to get more stable and accurate result when analyzing data, we have to first collect data as much as possible.
+
