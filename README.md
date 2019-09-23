@@ -1,6 +1,9 @@
 # Probability-and-Inference-Portfolio-Wang-Yasi
 Data science 5620: Probability
 
+Project 5:
+[relative HTML file](05-quantile-error/writeup.html)
+
 Project 4:
 [relative HTML file](04-world-series-home-field/writeup.html)
 
