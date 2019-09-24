@@ -82,6 +82,7 @@ for (j in (1:19)) {
   
 plot(y = len_norm, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution",cex.lab = 1.3, pch = 16, type = 'b')
 ```
+
 Length can represent the stability of the simulation. If length in one quantile is very small, the random values in this quantile will be largly clustered together. If the length is large, the variation will be larger.
 
 In the standard normal distribution, we can see that from the 5<sup>th</sup> to 50<sup>th</sup> quantile, the length will decrease, and from 50<sup>th</sup> to 95<sup>th</sup> quantile, the length will then increase. This means the 50% quantile has the shortest length with the most precision in the simulation. And the length gets larger with less presicion when away from 50<sup>th</sup> quantile.
@@ -134,7 +135,7 @@ df3 <- function(x){
 
 
 ```{r}
-roots<-rep(NA, 19)
+roots1<-rep(NA, 19)
 quantiles_mix3 <- matrix(NA,nrow = 5000,ncol = 19)
 p <- pth_quantile
 
@@ -158,18 +159,18 @@ for(i in 1:length(p)){
   pnew<-function(q) {
     pf3(q)-p[i]
     }
-  roots[i]<-uniroot(pnew, c(-100,100))[[1]]
+  roots1[i]<-uniroot(pnew, c(-100,100))[[1]]
 }
 
 # Prob 
 plot(y = mix3.mid.lengths, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution", cex.lab = 1.3, pch = 16, type = 'b')
 
 # Quant
-# plot(roots, mix3.mid.lengths)
+# plot(roots1, mix3.mid.lengths)
 
 # Requirement 2
 #Density
- #plot(df3(roots),mix3.mid.lengths)
+ #plot(df3(roots1),mix3.mid.lengths)
 ```
 
 According to the figure, we can find that the length has a large variation. The pattern is like a wave. The peaks are the point of 0.15<sup>th</sup> and 0.7<sup>th</sup> quantile. They have a relatively long length and low precision. For the throughs, 0.4<sup>th</sup> and 0.9<sup>th</sup> quantile have a relatively short length with high precision.
@@ -196,7 +197,7 @@ df4 <- function(x){
 
 
 ```{r}
-roots<-rep(NA, 19)
+roots2<-rep(NA, 19)
 quantiles_mix4 <- matrix(NA,nrow = 5000,ncol = 19)
 p <- seq(0.05,0.95,0.05)
 
@@ -219,18 +220,19 @@ for(i in 1:length(p)){
   pnew<-function(q) {
     pf4(q)-p[i]
     }
-  roots[i]<-uniroot(pnew, c(-100,100))[[1]]
+  roots2[i]<-uniroot(pnew, c(-100,100))[[1]]
 }
 
 plot(y = mix4.mid.lengths, x = pth_quantile, xlab = TeX("p^{th} quantile"), ylab = "Length", main = "Length of middle 95% of Sampling Distribution", cex.lab = 1.3, pch = 16, type = 'b')
 
 # Quant
-# plot(roots, mix4.mid.lengths)
+# plot(roots2, mix4.mid.lengths)
 
 # Requirement 2
 #Density
-# plot(df4(roots),mix4.mid.lengths)
+# plot(df4(roots2),mix4.mid.lengths)
 ```
+
 We can find that this graph is symmetric, with the symmetry axis of x = 0.5<sup>th</sup> quantile. Also, 0.5<sup>th</sup> quantile has the largest length and lowest precision Away from 0.5<sup>th</sup> quantile, the length becomes smaller and the precision becomes larger.
 
 
@@ -246,6 +248,7 @@ Now we transform sampling distribution to the population distribution, exploring
 dens_norm <- dnorm(qnorm(pth_quantile))
 plot(x = dens_norm, y = len_norm, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
 ```
+
 In this graph, we can find that when the density increases, the length decreases. When the density reaches the highest (Learned from experience, we can know that in 50<sup>th</sup> quantile, the density is the largest), the length is the shortest. This is the same as the conclusion obtained in the sampling distribution.
 
 ### 4.2 Exponential distribution
@@ -254,19 +257,22 @@ dens_exp <- dexp(qexp(pth_quantile))
 plot(x = dens_exp, y = len_exp, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
 
 ```
+
 Similarly, we can conclude that as the density increases, the length decreases, and the presicion increases.
 
 
 ### 4.3 First mixture distribution
 ```{r}
-plot(df3(roots),mix3.mid.lengths, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
+plot(df3(roots1),mix3.mid.lengths, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
 ```
-In this graph, the trend for the change of length is still hard to captured. This is probably due to the complexity of the mixture distribution.
+
+In this graph, even though the trend for the change of length fluctuates, the overall length is decreasing as the density increases.
 
 ### 4.4 Second mixture distribution
 ```{r}
-plot(df4(roots),mix4.mid.lengths, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
+plot(df4(roots2),mix4.mid.lengths, xlab = "Density", ylab = "Length", main = "Length of middle 95% of the sampling distribution by density")
 ```
+
 In this mixture distribution, the length decreases (followed with the presicion increases) with the increase of density.
 
 ### 4.5 Summary
