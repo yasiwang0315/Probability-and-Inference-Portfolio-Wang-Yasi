@@ -7,8 +7,6 @@ output:
     highlight: tango
     theme: cerulean
 ---  
-I haven't finished yet. I'll finish by Tuesday.
-
 The median is an important quantity in data analysis. It represents the middle value of the data distribution. Estimates of the median, however, have a degree of uncertainty because (a) the estimates are calculated from a finite sample and (b) the data distribution of the underlying data is generally unknown. One important roles of a data scientist is to quantify and to communicate the degree of uncertainty in his or her data analysis.
 
 Today, I'll demonstrate the empirical and theoretical methods to show the order statistics' properties.
@@ -38,10 +36,11 @@ curve(
 )
 
 ```
-From the graph, we can find that  if the median increase from negative infinite to 0, the density for this median will increase from 0 to 4. the probability 
+```{r eval=FALSE, include=FALSE}
+# density is not the probability, it is the relative likelihood
+```
+
 We can find that this graph is symmetric, with the symmetry axis of X<sub>100</sub> = 0. Also, when X<sub>100</sub> = 0, the density has the largest value. Away from 0, the density becomes smaller.
-
-
 
 ## Probability for the median
 
@@ -63,6 +62,7 @@ curve(
 
 ```
 
+As the X<sub>100</sub> increases, the probability increases and gets stable at 1 when X<sub>100</sub> equals to 0.4.
 
 ## Quantile for the median
 
@@ -100,10 +100,12 @@ plot(p, qorder(p)
 #   , col = "orange"
 # )
 ```
-We can notice that for the quantile for the median, as the quantile increases, the probability of increases.
+We can notice that for the quantile for the median, as the quantile increases, the X<sub>100</sub> increases from -0.3 to 0.3.
 
 
-Q: Simulate the sampling distribution for the median as you did in the previous deliverable. Create a plot of the empirical CDF (ECDF). Overlay the plot of the ECDF with a plot of the CDF.
+## CDF and ECDF
+
+I simulated the sampling distribution for the median, and created a plot of the empirical CDF (ECDF). 
 
 ```{r}
 set.seed(123)
@@ -114,7 +116,7 @@ for (i in 1:5000) {
 }
 
 sim_median_ecdf <- ecdf(sim_median) 
-plot(sim_median_ecdf, do.points = FALSE, col = "red", lwd = 3, main = "ECDF and CDF")
+plot(sim_median_ecdf, do.points = FALSE, col = "red", lwd = 3, main = "ECDF and CDF", xlab = "Medians")
 curve(porder(x), add = TRUE, lwd = 3, col = "blue")
 legend(
     "topleft"
@@ -130,14 +132,22 @@ The CDF and ECDF are perfectly overlapped.
 
 ## Histogram and density
 
-Using the simulated sampling distribution from the previous question, I created a histogram and overlay the histogram with a plot of the density function.
+Using the simulated sampling distribution from the previous question, I created a histogram and overlayed the histogram with a plot of the density function.
 
 ```{r}
-hist(sim_median, breaks = 30, col = "lightgray", freq = FALSE,
+hist(sim_median, breaks = 100, col = "lightgray", freq = FALSE,
      xlab = parse(text = "X[100]"), ylab = "Density", main = "Sampling distribution")
-lines(density(sim_median), col = "orange", lwd = 3)
+curve(
+    dorder(x)
+  , add = TRUE
+  , xlab = parse(text="X[(100)]")
+  , ylab = "Density"
+  , col = "blue"
+  , lwd = 3
+)
 ```
 
+The sampling distribution (histogram) matches with the population distribution (density plot) perfectly.
 
 ## QQ plot
 
@@ -153,8 +163,9 @@ library(tgsify)
 
 I generated a QQ plot for the simulated data of the median relative to the known sampling distribution of the median.
 ```{r}
-x1 <- qorder((1:199)/200)
-y1 <- quantile(sim_median, probs = (1:199)/200)
+p1 <- ppoints(200)
+x1 <- qorder(p)
+y1 <- quantile(sim_median, probs = p)
 
 plotstyle(style = upright)
 plot(x1,y1, asp = 1, xlab = "Theoretical quantile", ylab = "Sample quantile")
@@ -205,49 +216,57 @@ for (i in 1:5000) {
   sim_max[i] <- max(rnorm(200))
 }
 
-x2 <- qorder_new(k = 200, (1:199)/200)
-y2 <- quantile(sim_max, probs = (1:199)/200)
+p2 <- ppoints(200)
+x2 <- qorder_new(k = 200, p)
+y2 <- quantile(sim_max, probs = p)
 
 plotstyle(style = upright)
 plot(x2,y2, asp = 1, xlab = "Theoretical quantile", ylab = "Sample quantile")
 abline(0,1)
 ```
 
-## Functions with all together
+The plotted points fall along the line y=x, which means that the simulated data agree with the theoretical sampling distribution.
+
+
+## Functions all together
 
 I Modified the dorder, porder, and qorder functions so that the functions take new parameters dist and ... so that the functions will work for any continuous distribution that has d and p functions defined in R.
-```{r}
+
+```{r include=FALSE}
 require(dplyr)
 require(data.table)
 `%|%` <- function(a,b) paste0(a,b)
 require(tgsify) #can be installed with devtools::install_github("thomasgstewart/tgsify")
+```
 
 
+```{r}
 dist = c("norm", "exp", "binom", "unif", "beta")
 
-dorder_any <- function(dist, k, x, n){
+dorder_any <- function(dist, k, x, n, ...){
   pf <- get("p" %|% dist)
   df <- get("d" %|% dist)
   
   k*
   choose(n,k)*
-  (pf(x))^(k-1)*
-  (1-pf(x))^(n-k)*
-  df(x)  
+  (pf(x,...))^(k-1)*
+  (1-pf(x, ...))^(n-k)*
+  df(x, ...)  
 }
 
-porder_any <- function(dist, k, x, n){
+
+porder_any <- function(dist, k, x, n, ...){
   pf <- get("p" %|% dist)
-  pbinom(k-1, n, pf(x), lower.tail = FALSE)
+  pbinom(k-1, n, pf(x, ...), lower.tail = FALSE)
 }
+
 
 qorder_any <- function(k, x, n) {
   pf <- get("p" %|% dist)
-
   out <- x
   for (i in seq_along(x)) {
     pnew <- function(x) {
-      pbinom(k-1, n, pf(x), lower.tail = FALSE) - p[i]
+      pbinom(k-1, n, pf(x, ...), lower.tail = FALSE) - p[i]
     }
     out[i] <- uniroot(pnew, c(-100,100))$root
   }
@@ -260,37 +279,46 @@ qorder_any <- function(k, x, n) {
 I Use the newly modified functions to plot the probability and density functions for the sample min (N=200).
 
 ```{r}
-dist = c("norm", "exp", "binom", "unif", "beta")
 curve(
-  dorder_any("norm", 1, x, 200)
-  , xlim = c(-1.5, 1)
-  , xlab = parse(text = "X[100]")
+  dorder_any(dist = "norm", k = 1, x, n = 200)
+  , xlim = c(-5, 1)
+  , xlab = parse(text = "X[1]")
   , ylab = "Density"
   , lwd = 3
-  , col = "orange"
-  , main = "Density for the Minimum"
+  , col = "red"
+  , main = "Normal distribution: Density for the Minimum"
 )
-
-curve(
-  dorder_any("exp", 1, x, 200)
-  , xlim = c(0, 0.1)
-  , xlab = parse(text = "X[100]")
-  , ylab = "Density"
-  , lwd = 3
-  , col = "blue"
-  , main = "Density for the Minimum"
-)
-
-
 curve(
   porder_any("norm", 1, x, 200)
-  , xlim = c(-1.5, -1)
-  , xlab = parse(text = "X[100]")
+  , xlim = c(-5, 0)
+  , xlab = parse(text = "X[1]")
   , ylab = "Probability"
   , lwd = 3
   , col = "red"
-  , main = "Probability for the Minimum"
+  , main = "Normal distribution: Probability for the Minimum"
 )
+
+
+curve(
+  dorder_any(dist = "exp", 1, x, 200, rate = 2)
+  , xlim = c(0, 0.03)
+  , xlab = parse(text = "X[1]")
+  , ylab = "Density"
+  , lwd = 3
+  , col = "blue"
+  , main = "Exponential distribution: Density for the Minimum"
+)
+
+curve(
+  porder_any(dist = "exp", 1, x, 200, rate = 2)
+  , xlim = c(0, 0.03)
+  , xlab = parse(text = "X[1]")
+  , ylab = "Density"
+  , lwd = 3
+  , col = "blue"
+  , main = "Exponential distribution: Probability for the Minimum"
+)
+
 
 ```
 
