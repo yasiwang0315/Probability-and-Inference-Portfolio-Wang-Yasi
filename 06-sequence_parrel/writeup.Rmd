@@ -1,0 +1,330 @@
+---
+title: "06-06-order-statistic"
+date: "9/29/2019"
+author: "Yasi Wang"
+output: html_document
+---  
+I haven't finished yet. I'll finish by Tuesday.
+
+The median is an important quantity in data analysis. It represents the middle value of the data distribution. Estimates of the median, however, have a degree of uncertainty because (a) the estimates are calculated from a finite sample and (b) the data distribution of the underlying data is generally unknown. One important roles of a data scientist is to quantify and to communicate the degree of uncertainty in his or her data analysis.
+
+Today, I'll demonstrate the empirical and theoretical methods to show the order statistics' properties.
+
+# Density for the median
+Begin with the median from a sample of N=200 from the standard normal distribution. The density function for the median in this sample is listed below. 
+
+**Note:** the 100th order statistic is approximately the median.
+```{r}
+dorder <- function(x){
+  100*
+  choose(200,100)*
+  (pnorm(x))^(100-1)*
+  (1-pnorm(x))^(200-100)*
+  dnorm(x)  
+}
+
+curve(
+  dorder(x)
+  , xlim = c(-0.5, 0.5)
+  , xlab = parse(text = "X[100]")
+  , ylab = "Density"
+  , lwd = 3
+  , col = "orange"
+  , main = "Density for the Median"
+)
+
+```
+From the graph, we can find that if the median increase from negative infinite to 0, the density for this median will increase from 0 to 4., the probability 
+
+In the standard normal distribution, we can see that from the 5<sup>th</sup> to 50<sup>th</sup> quantile, the length will decrease, and from 50<sup>th</sup> to 95<sup>th</sup> quantile, the length will then increase. This means the 50% quantile has the shortest length with the most precision in the simulation. And the length gets larger with less presicion when away from 50<sup>th</sup> quantile.
+
+Q: Write an R function that is the probability function for the median in this sample. Use the order statistic formula discussed in class. Generate a plot of the function.
+```{r}
+porder <- function(x){
+  pbinom(100-1, 200, pnorm(x), lower.tail = FALSE)
+}
+
+curve(
+  porder(x)
+  , xlim = c(-0.5, 0.5)
+  , xlab = parse(text = "X[100]")
+  , ylab = "Probability"
+  , lwd = 3
+  , col = "orange"
+  , main = "Probability for the Median"
+)
+
+```
+
+Q: Write an R function that is the quantile function for the median in this sample. (You have several options for how to write this function.) Generate a plot of the function.
+
+```{r}
+qorder <- function(p) {
+  out <- p
+  for (i in seq_along(p)) {
+    pnew <- function(x) {
+      pbinom(100-1, 200, pnorm(x), lower.tail = FALSE) - p[i]
+    }
+    out[i] <- uniroot(pnew, c(-10,10))$root
+  }
+  out
+}
+
+p <- seq(0.001, 0.999, 0.001)
+plot(p, qorder(p),
+  , xlim = c(0, 1)
+  , xlab = parse(text = "Quantile")
+  , ylab = "Probability"
+  , type = "l"
+  , lwd = 3
+  , main = "Quantile for the Median"
+  , col = "orange"
+)
+
+curve(qorder(x)
+  , xlab = parse(text = "Quantile")
+  , ylab = "Probability"
+  , type = "l"
+  , lwd = 3
+  , main = "Quantile for the Median"
+  , col = "orange"
+)
+```
+
+
+Q: Simulate the sampling distribution for the median as you did in the previous deliverable. Create a plot of the empirical CDF (ECDF). Overlay the plot of the ECDF with a plot of the CDF.
+
+```{r}
+set.seed(123)
+
+sim_median <- c()
+for (i in 1:5000) {
+  sim_median[i] <- median(rnorm(200))
+}
+
+sim_median_ecdf <- ecdf(sim) 
+plot(sim_median_ecdf, do.points = FALSE, col = "red", lwd = 3, main = "ECDF and CDF")
+curve(porder(x), add = TRUE, lwd = 3, col = "blue")
+legend(
+    "topleft"
+  , c("ECDF","CDF")
+  , lwd = 3
+  , col = c("red","blue")
+  , bty = "n"
+)
+
+```
+
+
+Q: Using the simulated sampling distribution from the previous question, create a histogram (on the density scale). Overlay the histogram with a plot of the density function.
+
+```{r}
+hist(sim_median, breaks = 30, col = "lightgray", freq = FALSE)
+lines(density(sim_median), col = "orange", lwd = 3)
+```
+
+
+Q: One very common way to compare a random sample to a theoretical candidate distribution is the QQ plot. It is created by ploting quantiles of the theoretical distribution on the x-axis and empirical quantiles from the sample on the y-axis.
+
+```{r include=FALSE}
+# library(devtools)
+# install_github("thomasgstewart/tgsify")
+library(tgsify)
+```
+
+
+If sample and theoretical quantiles come from the same distribution, then the plotted points will fall along the line y=x, approximately. 
+
+
+I generated a QQ plot for the simulated data of the median relative to the known sampling distribution of the median.
+Does the simulated data agree with the theoretical sampling distribution?
+```{r}
+x1 <- qorder((1:199)/200)
+y1 <- quantile(sim_median, probs = (1:199)/200)
+
+plotstyle(style = upright)
+plot(x1,y1, asp = 1, xlab = "Theoretical quantile", ylab = "Sample quantile")
+abline(0,1)
+```
+Clearly, they are from the same distribution
+
+
+
+Q: Modify the dorder, porder, and qorder functions so that the functions take a new parameter k (for the kt**h order statistic) so that the functions will work for any order statistic and not just the median.
+```{r}
+dorder_new <- function(k, x){
+  k*
+  choose(200,k)*
+  (pnorm(x))^(k-1)*
+  (1-pnorm(x))^(200-k)*
+  dnorm(x)  
+}
+
+porder_new <- function(k, x){
+  pbinom(k-1, 200, pnorm(x), lower.tail = FALSE)
+}
+
+qorder_new <- function(k, p) {
+  out <- p
+  for (i in seq_along(p)) {
+    pnew <- function(x) {
+      pbinom(k-1, 200, pnorm(x), lower.tail = FALSE) - p[i]
+    }
+    out[i] <- uniroot(pnew, c(-10,10))$root
+  }
+  out
+}
+```
+
+
+Q: Generate the QQ plot for simulated data from the sampling distribution of the sample max and the theoretical largest order statistic distribution.
+
+```{r}
+set.seed(123)
+
+sim_max <- c()
+for (i in 1:5000) {
+  sim_max[i] <- max(rnorm(200))
+}
+
+x2 <- qorder_new(k = 200, (1:199)/200)
+y2 <- quantile(sim_max, probs = (1:199)/200)
+
+plotstyle(style = upright)
+plot(x2,y2, asp = 1, xlab = "Theoretical quantile", ylab = "Sample quantile")
+abline(0,1)
+```
+
+Q: Modify the dorder, porder, and qorder functions so that the functions take new parameters dist and ... so that the functions will work for any continuous distribution that has d and p functions defined in R.
+```{r}
+
+require(dplyr)
+require(data.table)
+`%|%` <- function(a,b) paste0(a,b)
+require(tgsify) #can be installed with devtools::install_github("thomasgstewart/tgsify")
+
+
+dist = c("norm", "exp", "binom", "unif", "beta")
+
+dorder <- function(dist, k, x, n){
+  dist = c("norm", "exp", "binom", "unif", "beta")
+  pf <- get("p" %|% dist)
+  df <- get("d" %|% dist)
+  
+  k*
+  choose(n,k)*
+  (pf(x))^(k-1)*
+  (1-pf(x))^(n-k)*
+  df(x)  
+}
+
+porder <- function(k, x, n){
+  pbinom(k-1, n, pf(x), lower.tail = FALSE)
+}
+
+qorder <- function(k, x, n) {
+  out <- x
+  for (i in seq_along(x)) {
+    pnew <- function(x) {
+      pbinom(k-1, n, pf(x), lower.tail = FALSE) - p[i]
+    }
+    out[i] <- uniroot(pnew, c(-100,100))$root
+  }
+  out
+}
+
+
+
+pf <- pnorm
+df <- dnorm
+
+
+dist = c("norm", "exp", "binom", "unif", "beta")
+
+rorder <- get("r" %|% dist)
+
+
+dorder <- function(dist)
+
+dorder <- function(k, x, n){
+  k*
+  choose(n,k)*
+  (pnorm(x))^(k-1)*
+  (1-pnorm(x))^(n-k)*
+  dnorm(x)  
+}
+
+one_setting <- function(params, ps = seq(.05, .95, by = 0.05)){
+  inputs <- as.list(params)
+  inputs$ps <- ps
+  with(inputs, {
+    N_p <- ps %>% length
+    pf <- get("p" %|% dist)
+    rf <- get("r" %|% dist)
+    qf <- get("q" %|% dist)
+    df <- get("d" %|% dist)
+
+  })
+}
+
+    
+    
+
+sim_settings <- expand.grid(
+    N = c(200, 400, 800, 1600)
+  , M = 5000
+  , dist = c("norm", "exp", "binom", "unif", "beta")
+  , KEEP.OUT.ATTRS = FALSE
+  , stringsAsFactors = FALSE
+)
+
+results <- vector("list", nrow(sim_settings))
+
+
+one_setting <- function(params, ps = seq(.05, .95, by = 0.05)){
+  inputs <- as.list(params)
+  inputs$ps <- ps
+  with(inputs, {
+    N_p <- ps %>% length
+    rf <- get("r" %|% dist)
+    qf <- get("q" %|% dist)
+    df <- get("d" %|% dist)
+    
+    # Array option
+    # vals <- array(rf(N*M), dim = c(M,N))
+    # q1 <- vals %>% apply(1, quantile, probs = ps)
+    
+    # For loop option
+    q1 <- array(NA, dim = c(N_p, M))
+    for(i in 1:M){
+      q1[,i] <- rf(N) %>% quantile(probs = ps)
+    }
+    
+    q2 <- q1 %>% apply(1, quantile, probs = c(0.025, 0.975), type = 4)
+    ls <- q2 %>% apply(2, diff)
+    
+    # p to q to d
+    density <- ps %>% qf %>% df
+    
+    #output
+    data.frame(p = ps, density = density, length = ls, N = N, M = M, dist = dist, stringsAsFactors = FALSE)
+  })
+}
+
+for(i in 1:nrow(sim_settings)){
+  results[[i]] <- sim_settings[i,] %>% one_setting  
+}
+
+ar <- rbindlist(results) %>% 
+  mutate(N_color = N %>% as.factor %>% as.numeric) 
+
+
+```
+
+
+Q: Use the newly modified functions to plot the probability and density functions for the sample min (N=200).
+
+```{r}
+
+```
+
