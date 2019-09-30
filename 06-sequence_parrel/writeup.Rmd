@@ -1,8 +1,8 @@
 ---
-title: "06-06-order-statistic"
+title: "06-order-statistic"
 date: "9/29/2019"
 author: "Yasi Wang"
-output: html_document
+output: html_notebook
 ---  
 I haven't finished yet. I'll finish by Tuesday.
 
