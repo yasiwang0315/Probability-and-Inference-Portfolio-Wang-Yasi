@@ -127,7 +127,7 @@ legend(
 )
 
 ```
-The CDF and ECDF are perfectly overlapped.
+The CDF and ECDF are almost perfectly overlapped.
 
 
 ## Histogram and density
@@ -240,6 +240,7 @@ require(tgsify) #can be installed with devtools::install_github("thomasgstewart/
 ```
 
 
+
 ```{r}
 dist = c("norm", "exp", "binom", "unif", "beta")
 
@@ -318,7 +319,8 @@ curve(
   , col = "blue"
   , main = "Exponential distribution: Probability for the Minimum"
 )
-
-
 ```
 
+As for normal distribution, I plotted the probability and density functions for the 1<sub>st</sub> ordered value. We can see that the density function is not symmetric, but still goes increase and then decrease. As for probability, it increases and gets stable at 1 when X<sub>1</sub> equals to -2.
+
+As for exponential distribution, as X<sub>1</sub> increases from 0, the density decreases all the time, while the probability increases.
