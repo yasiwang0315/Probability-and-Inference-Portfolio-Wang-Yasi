@@ -1,16 +1,67 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "01-roulette-simulation"
+author: Yasi Wang
+date: 10/5/2019
+output: 
+  html_notebook: 
+    highlight: tango
+    theme: cosmo
 ---
 
-```{r}
+<center>
+<img src="routelle.svg" style="width:50.0%" />
+</center>
+
+
+# Introduction
+***
+## Roulette wheel
+The Roulette wheel is a casino game which is very popular around the world. A roulette table is composed of 38 (or 37) evenly sized pockets on a wheel. The pockets are colored red, black, or green. The pockets are also numbered. Roulette is a game of chance in which a pocket is randomly selected. 
+
+Gamblers have several ways to bet. They can bet on individual numbers, various groupings of numbers, the colors red or black, whether the number is odd or even, or whether the numbers are high or low. If the ball falls into a pocket that belongs to the house, all the players lose and the house collects all the bets.
+
+## Martingale stragegy
+There is a wide range of strategies that players follow when they play Roulette, and the most common strategy seems to be the Martingale Strategy, which consists of doubling bets post-loss in a 50/50 chance game.
+
+Martingale Strategy bets can be on black or red, even or odd, and the specific number. If the player wins, he bets again with the same size wager. If the player loses, he doubles his previous wager amount and places the same bet again. For example, if the player bet 1 dollar on red numbers in his first bet and lost, his second bet will be 2 dollars on red numbers again. If the player wins on the second bet, he pockets the cash and reverts back to his original 1 dollar bet for the next round. If the player loses on the second bet, he must double his bet once more and try again. 
+
+![](strategy.svg)
+
+
+Consider the following sequence {Black, Black, Black, Red}:
+
+| Play | Wager | Outcome | Earnings |
+|:----:|:-----:|:-------:|:--------:|
+|   1  |   1   |  Black  |    -1    |
+|   2  |   2   |  Black  |    -3    |
+|   3  |   4   |  Black  |    -7    |
+|   4  |   8   |   Red   |    +1    |
+
+It seems tha the Martingale strategy always end in positive earnings, regardless of how unlucky a string of spins may be. Is it truely profitable?
+
+# Simulation
+***
+In order to better get insight of Roulette game, we created the repeated simulations to demonstrate the process of Roulette gambling using Martingale strategy.
+
+First, We identify four parameters and their starting value. They are:
+
+| Parameter | Description                     |             Starting value             |
+|:---------:|:--------------------------------|:--------------------------------------:|
+|   **B**   | Starting budget                 |                  $200                  |
+|   **W**   | Winnings threshold for stopping | $300 (Starting budget + $100 winnings) |
+|   **L**   | Time threshold for stopping     |               1000 plays               |
+|   **M**   | Casino's maximum wager          |                  $100                  |
+
+
+```{r echo = FALSE, include=FALSE}
 library(magrittr) # needs to be run every time you start R and want to use %>%
 library(dplyr)
 library(tidyverse)
 library(ggplot2)
 ```
 
-```{r}
+
+```{r include=FALSE}
 #' A single play of the Martingale strategy
 #'
 #' Takes a state list, spins the roulette wheel, returns the state list with updated values (for example, budget, plays, etc)
@@ -27,7 +78,7 @@ library(ggplot2)
 
 
 
-```{r}
+```{r include=FALSE}
 one_play <- function(state){
     #browser() ## what's this?
   
@@ -55,7 +106,7 @@ one_play <- function(state){
 ```
 
 
-```{r}
+```{r include=FALSE}
 #' Stopping rule
 #'
 #' Takes the state list and determines if the gambler has to stop
@@ -73,7 +124,7 @@ stop_play <- function(state){
 ```
 
 
-```{r}
+```{r include=FALSE}
 #' Play roulette to either bankruptcy, success, or play limits
 #'
 #' @param B number, the starting budget
@@ -86,7 +137,7 @@ one_series <- function(
   , W = 300
   , L = 1000
   , M = 100
-){
+) {
 
   # initial state
   state <- list(
@@ -120,41 +171,46 @@ get_last <- function(x) x[length(x)]
 ```
 
 
-```{r}
+
+```{r echo=FALSE}
 # Simulation
-walk_out_money <- rep(NA, 100)
+walk_out_money <- rep(NA, 10000)
 for(j in seq_along(walk_out_money)){
   walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
 }
 
 
 # Walk out money distribution
-hist(walk_out_money, breaks = 10)
+hist(walk_out_money, breaks = 10, xlab = "Walk-out money", ylab = "Frequency", main = "Histogram of Walk-out money", col = "lightgray")
+```
 
+After 10000 times simulation, we can tell that you can earn extra cash in 5201 times and lost money in the rest of the times. The estimated earnings through out the 10000 times is losing 44 dollars.
+```{r}
 # Estimated probability of walking out with extra cash
 mean(walk_out_money > 200)
 
-# Estimated earnings
+# Estimated earnings  
 mean(walk_out_money - 200)
 ```
 
-### 1. In Figure 1, I demonstrate some examples of grambler earnings over a series of wagers at the roulette wheel.
+### Examples of gambler earnings/losses over time
 
-```{r}
+I demonstrate some patterns of grambler earnings over a series of wagers at the roulette wheel.
+
+```{r echo=FALSE}
 # Q1
 set.seed(2)
 earning1 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
 earning2 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
 earning3 <- one_series(B = 200, W = 300, L = 1000, M = 100) - 200
-plot(earning1, main = "Figure 1: Gamblers earnings / losses over time", xlab = "play number", 
-     ylab = "earnings", type ="b", col = "red")
-lines(earning2, xlab = "play number", ylab = "earnings", col = "blue")
-lines(earning3, xlab = "play number", ylab = "earnings", col = "green")
+plot(earning1, main = "Gamblers earnings / losses over time", xlab = "play number", 
+     ylab = "earnings", type ="b", lwd = 2, col = "red")
+lines(earning2, xlab = "play number", ylab = "earnings", type ="b", lwd = 2, col = "blue")
+lines(earning3, xlab = "play number", ylab = "earnings", type ="b", lwd = 2, col = "green")
 ```
 
 
-
-```{r}
+```{r eval=FALSE, include=FALSE}
 # in class code
 
 set.seed(2)
@@ -167,9 +223,15 @@ plot(s1)
 
 ```
 
-### 2.1. When we set the budget from 10 to 300 (budget has to be lower than winning threshold), average earnings will first decrease and then increase with the increase of budget. 
+# Analysis
+***
+For further analysis, I'll show how changing a parameter of the simulation does or does not have an impact on average earnings.
 
-```{r}
+### Budget
+
+When we set the budget from 10 to 300 (budget has to be lower than winning threshold), average earnings will first decrease and then increase with the increase of budget. 
+
+```{r echo=FALSE}
 # change the budget
 walk_out_money <- rep(NA, 100)
 b <- matrix(nrow = 100, ncol = 30)
@@ -189,9 +251,11 @@ mean_earnings <- colMeans(b)
 df1 <- as.data.frame(mean_earnings)
 df1["Budget"] <- seq(10,300,10)
 df1 %>%
-  ggplot(ggtitle("Figure 2: Change the budget"), mapping = aes(x = Budget, y = mean_earnings)) +
+  ggplot(mapping = aes(x = Budget, y = mean_earnings)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = "Relationship between budget and average earnings", x = "Budget", y = "Average earnings") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 # plot earnings
 #plot(x = seq(10, 300, 10), y = mean_earnings, xlab = "budget", type = "l")
@@ -199,9 +263,11 @@ df1 %>%
 ```
 
 
-### 2.2 When we set the winning threshold from 220 to 840, the average earnings will decrease.
+### Winning threshold
 
-```{r}
+When we set the winning threshold from 220 to 840, the average earnings will decrease.
+
+```{r echo=FALSE, warning=FALSE}
 # change the winning
 
 walk_out_money <- rep(NA, 100)
@@ -221,16 +287,20 @@ df2["Winning_threshold"] <- seq(220,840,20)
 df2 %>%
   ggplot(mapping = aes(x = Winning_threshold, y = mean_earnings)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = "Relationship between winning threshold and average earnings", x = "Winning threshold", y = "Average earnings") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 # plot earnings
 #plot(mean_earnings)
 ```
 
 
-### 2.3 When we set the Time threshold from 0 to 620, we can see that there is a sharp decrease before 300 plays. After 300 plays, the average earnings are stable.
+### Time threshold (Number of playes)
 
-```{r}
+When we set the Time threshold from 0 to 620, we can see that there is a sharp decrease before 300 plays. After 300 plays, the average earnings are stable.
+
+```{r echo=FALSE, warning=FALSE}
 # change time threshold
 walk_out_money <- rep(NA, 100)
 l <- matrix(nrow = 100, ncol = 32)
@@ -249,15 +319,19 @@ df3["Time_threshold"] <- seq(0,620,20)
 df3 %>%
   ggplot(mapping = aes(x = Time_threshold, y = mean_earnings)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = "Relationship between time threshold and average earnings", x = "Time threshold", y = "Average earnings") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 # plot earnings
 #plot(mean_earnings)
 ```
 
-### 2.4 When we set Maximum wagers from 0 to 310, we can find some slight increase.
+### Maximum wagers
 
-```{r}
+When we set Maximum wagers from 0 to 310, we can find some slight increase.
+
+```{r echo=FALSE}
 # change max
 walk_out_money <- rep(NA, 100)
 m <- matrix(nrow = 100, ncol = 32)
@@ -276,21 +350,23 @@ df4["Maximum_wager"] <- seq(0,310,10)
 df4 %>%
   ggplot(mapping = aes(x = Maximum_wager, y = mean_earnings)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = "Relationship between maximum wagers and average earnings", x = "Maximum wager", y = "Average earnings") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 # plot earnings
 #plot(mean_earnings)
 ```
 
 
-### 3. The average number of plays is at around 200.
+## The average number of plays
 
 In order to estimate the average number of plays before stopping, we need to find the number of plays in each series of play. We can easily know that the length of the one_series function represents the number of plays. This is because one_series function return the vector which stores all the budget over series of plays. If we count the number of budget, we can get the number of plays in this series.
 
-Then, we can simulate 100 times and average the results.
+Then, we can simulate 100 times and average the results. It shows that the average number of plays is 200 times.
 
 
-```{r}
+```{r echo=FALSE}
 # Q4: average number of plays
 # Simulation
 set.seed(123)
@@ -304,15 +380,17 @@ for(j in seq_along(walk_out_play)){
 ## num_play, we can easily use length. they are the same
 
 # Walk out play distribution
-hist(walk_out_play, breaks = 100)
-
-
-
-# Estimated playing times
-mean(walk_out_play)
+hist(walk_out_play, breaks = 100, main = "Histogram of walk-out play", xlab = "the number of walk-out play times", ylab = "frequency")
 
 ```
-### 4.1 Limitations of the simulation:
+```{r}
+# Estimated playing times
+mean(walk_out_play)
+```
+
+
+# Limitations of the simulation
+***
 
 1) When we do the simulation, we need a good theory and causal hypotheses. 
 
@@ -322,7 +400,8 @@ mean(walk_out_play)
 
 4) Simulation need to take a lot of data to be input, so it usually need the computer with higher memory and processor speed.
 
-### 4.2 Sources of uncertainty
+# Sources of uncertainty
+***
 
 1) The player's risk preference will affect the result. If he prefers risk aversion, he will stop playing afer losing a small amount of money.
 
