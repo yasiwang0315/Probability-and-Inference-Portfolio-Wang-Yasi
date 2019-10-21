@@ -90,33 +90,19 @@ gen.ci <- quantile(meds, c(0.025, 0.975))
 
 **Step 4: Calculate the coverage probability.**
 
-In our simulation, if 0 is inside of the calculated 95% CI, we think the median is captured by this sampling distribution. Thus, if we simply run the previous sampling distribution (with mean = mle.mean, sd = mle.sd) 100 times, the coverage probability = <sup>0 is contained in the confidence interval</sup>&frasl;<sub>total number of simulation</sub> = 1.
+In our simulation, if 0 is inside of the calculated 95% CI, we think the median is captured by this sampling distribution. Thus, we can calculate that:
 
-```{r}
-capture <- NA
+<center>
+$\text{coverage probability} =$ \(\frac{\text{0 is contained in the confidence interval}}{\text{total number of simulation}}\)
+</center>
 
-for (j in 1:100) {
-  out <- rep(NA, 5000)
-  for (i in 1:5000) {
-    Fhat.sample <- rnorm(N, mean = mle.mean, sd = mle.sd) #approximate distribution for sample
-    out[i] <- median(Fhat.sample)
-  }
-# we can go to the bootstrap ci part
-  gen.ci <- quantile(out, c(0.025, 0.975))
-  
-  capture[j] <- (gen.ci[1] < pop.mean & gen.ci[2] > pop.mean)
-}
-  
-round(mean(capture), 4)
 
-```
+We can will generate several functions to calculate the coverage probability in the following steps.
 
 
 **Step 5: Perform the simulation with bootstrap.**
 
-In the previous step, we just use one sample to generate MLE estimate. Now we will multiple sets of samples to do MLE estimate and use boostrap to get the result. The eneral framework for simulation studies of coverage probabilities is:
-
-
+Now we will multiple sets of samples to do MLE estimate and use boostrap to get the result. The eneral framework for simulation studies of coverage probabilities is:
 
 <center>
 ![](generate1.png){ width=80% } 
