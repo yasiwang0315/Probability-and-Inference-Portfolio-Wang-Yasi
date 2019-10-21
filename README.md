@@ -1,6 +1,12 @@
 # Probability-and-Inference-Portfolio-Wang-Yasi
 Data science 5620: Probability
 
+Project 8:
+[relative HTML file](08-coverage-probability/writeup.nb.html)
+
+Project 6:
+[relative HTML file](06-sequence_parrel/writeup.nb.html)
+
 Project 5:
 [relative HTML file](05-quantile-error/writeup.html)
 
