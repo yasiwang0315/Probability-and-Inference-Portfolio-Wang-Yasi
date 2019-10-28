@@ -1,0 +1,183 @@
+---
+title: "02-monte-carlo-error"
+author: Yasi Wang
+date: 10/5/2019
+output: 
+  html_notebook: 
+    highlight: tango
+    theme: cosmo
+---
+# Introduction
+***
+
+Simulations is very useful, which gives us insight into the outcome of a given situation. When we run the simulation multiple times, different results are obtained. This between-simulation variability is called **Monte Carlo error**.
+
+Specifically, there are two primary ways in which simulation error is measured: absolute error and relative error. **Absolute error** is the magnitude of the difference between the exact value and the approximation. **Relative error** is the absolute error divided by the magnitude of the exact value. 
+
+In this blog, I'd like to show you the concepts of absolute error and relative error when estimating probabilities from simulation. 
+
+# Simulation
+***
+
+In the simulation, I performed a 14 X 5 factorial experiment simulation that estimates the error for each combination of replicate number (2<sup>2</sup>, 2<sup>3</sup>, ..., 2<sup>15</sup>) and probability (0.01, 0.05, 0.10, 0.25, 0.50). 
+
+
+### 1) One series of simulation with p = .50
+
+We can start with doing one series of simulation with p = .50. First, We made two vectors that can store absolute error and relative error. Then, we did for loop to get the value of abs_error and rel_error in each condition. We found that as N increase, absolute error and relative error both decrease.
+
+
+| Parameter | Description |
+|:---------:|:-----------:|
+|   p_hat   | exact probability |
+|   p       | probability of interest |
+| abs_error | absolute error |
+| rel_error | relative error |
+|    n      | control the simulation times |
+|           |                |
+
+```{r fig.width=12, fig.height=5}
+set.seed(123)
+
+p <- .50 
+abs_error <- rel_error <- rep(NA, 14)
+n = 2
+
+for (i in seq_along(abs_error)) {
+  n <- n * 2
+  abs_error[i] <- mean(abs(rbinom(1000, n, p)/n - p))
+  rel_error[i] <- abs_error[i]/p
+}
+
+par(mfrow = c(1, 2))
+label <- c(2^2, 2^3, 2^4, 2^5,2^6, 2^7, 2^8, 2^9, 2^10, 2^11, 2^12, 2^13, 2^14, 2^15)
+plot(abs_error, col = "orange", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Absolute Error", pch=16, lwd = 4, main = "Absolute error with N (p = .50)")
+axis(1, at = 1:14, labels = label, las = 2)
+plot(rel_error, col = "blue", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Relative Error", pch=16, lwd = 4, main = "Relative error with N (p = .50)")
+axis(1, at = 1:14, labels = label, las = 2)
+
+
+```
+
+
+### 2) Simulations with multiple p
+After generating one plot, now we start to do the simulation with multiple p values. Different from previous method, here I created two matrices with 5 rows and 14 columns to store the abs_errors and rel_errors. The code is demonstrated below. In the first for loop, j represented probability choices. In the second loop, i can control the simulation times. Most interestingly, I added one more loop, which could enable us to get the stable probability of abs_error and rel_error in one series of simulation.
+
+```{r}
+
+# method 1
+
+set.seed(10)
+
+p <- c(.50, .25, .10, .05, .01)
+
+abs_error <- rel_error <- matrix(nrow = 5, ncol = 14)
+
+for (j in seq(1, 5)) {
+  n = 2
+  for (i in seq(1, 14)) {
+    n <- n * 2
+    tmp_abs_error <- 0
+    for (k in seq(1, 1000)) {
+      p_hat <- rbinom(1, n, p[j])/n
+      tmp_abs_error <- tmp_abs_error + abs(p[j] - p_hat)
+    }
+    
+    abs_error[j,i] <- tmp_abs_error/1000
+    rel_error[j,i] <- abs_error[j,i]/p[j]
+  }
+
+}
+
+```
+
+
+```{r eval=FALSE, include=FALSE}
+# method 2
+
+p <- c(.50, .25, .10, .05, .01)
+
+abs_error <- rel_error <- matrix(nrow = 5, ncol = 14)
+
+for (j in seq(1, 5)) {
+  n = 2
+  for (i in seq(1, 14)) {
+    n <- n * 2
+    abs_error[j,i] <- mean(abs(rbinom(1000, n, p[j])/n - p[j]))
+    rel_error[j,i] <- abs_error[j,i]/p[j]
+  }
+
+}
+```
+
+
+The scatter plot are shown below. We can find that with N increase, absolute error will decrease. And the larger the p value, the larger absolute error it is.
+```{r absolute error, echo=FALSE, fig.height=6}
+label <- c(2^2, 2^3, 2^4, 2^5,2^6, 2^7, 2^8, 2^9, 2^10, 2^11, 2^12, 2^13, 2^14, 2^15)
+plot(abs_error[1,], col = "orange", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Absolute Error", pch=16, lwd = 4, main = "Absolute error with N")
+axis(1, at = 1:14, labels = label, las = 2)
+lines(abs_error[2,], col = "purple", type = "b", pch=16, lwd = 4)
+lines(abs_error[3,], col = "green", type = "b", pch=16, lwd = 4)
+lines(abs_error[4,], col = "blue", type = "b", pch=16, lwd = 4)
+lines(abs_error[5,], col = "red", type = "b", pch=16, lwd = 4)
+
+legend(12, 0.18, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1,
+       title="p value", text.font=4)
+```
+
+
+As for relative error, we can find that with N increase, error will decrease. And the larger the p value, the smaller error.
+```{r relative error, echo=FALSE, fig.height=6}
+plot(rel_error[1,1:14], col = "orange", type = "b", ylim = c(0,2), xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = "Relative Error", pch=16, lwd = 4, main = "Relative error with N")
+axis(1, at = 1:14, labels = label, las = 2)
+lines(rel_error[2,1:14], col = "purple", type = "b", pch=16, lwd = 4)
+lines(rel_error[3,1:14], col = "green", type = "b", pch=16, lwd = 4)
+lines(rel_error[4,1:14], col = "blue", type = "b", pch=16, lwd = 4)
+lines(rel_error[5,1:14], col = "red", type = "b", pch=16, lwd = 4)
+
+legend(12, 1.95, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1,
+       title="p value", text.font=4)
+```
+
+### 3) Further exploration
+I scale $log10$ to the y-axis. Let's see what will happen.
+
+```{r log absolute error, echo=FALSE, fig.height=6}
+
+log_abs <- log10(abs_error)
+
+label <- c(2^2, 2^3, 2^4, 2^5,2^6, 2^7, 2^8, 2^9, 2^10, 2^11, 2^12, 2^13, 2^14, 2^15)
+plot(log_abs[1,1:14], col = "orange", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = (log[10]~("Absolute Error")), ylim = c(-3.5, -0.5), pch=16, lwd = 4, main = (log[10]~("Absolute error")~"with N"))
+axis(1, at = 1:14, labels = label, las = 2)
+lines(log_abs[2,1:14], col = "purple", type = "b", pch=16, lwd = 4)
+lines(log_abs[3,1:14], col = "green", type = "b", pch=16, lwd = 4)
+lines(log_abs[4,1:14], col = "blue", type = "b", pch=16, lwd = 4)
+lines(log_abs[5,1:14], col = "red", type = "b", pch=16, lwd = 4)
+
+legend(12, -0.6, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1,
+       title="p value", text.font=4)
+
+```
+
+
+```{r log relative error, echo=FALSE, fig.height=6}
+log_rel <- log10(rel_error)
+
+
+label <- c(2^2, 2^3, 2^4, 2^5,2^6, 2^7, 2^8, 2^9, 2^10, 2^11, 2^12, 2^13, 2^14, 2^15)
+plot(log_rel[5,1:14], col = "red", type = "b", xaxt = "n", xlab = ("N"~(log[2]~"scale")), ylab = (log[10]~("Relative Error")), ylim = c(-2.5, 0.3), pch=16, lwd = 4, main = (log[10]~("Relative error")~"with N"))
+axis(1, at = 1:14, labels = label, las = 2)
+lines(log_rel[4,1:14], col = "blue", type = "b", pch=16, lwd = 4)
+lines(log_rel[3,1:14], col = "green", type = "b", pch=16, lwd = 4)
+lines(log_rel[2,1:14], col = "purple", type = "b", pch=16, lwd = 4)
+lines(log_rel[1,1:14], col = "orange", type = "b", pch=16, lwd = 4)
+
+legend(12, 0.2, legend=c("p = 0.50", "p = 0.25", "p = 0.10", "p = 0.05", "p = 0.01"),
+       col=c("orange", "purple", "green", "blue", "red"), lty=1:2, cex=1, 
+       title="p value", text.font=4)
+
+```
+If we change y-axis is on the $log10$ scale, we can found that there is a liner relationship between Absolute error/Relative error and N.
