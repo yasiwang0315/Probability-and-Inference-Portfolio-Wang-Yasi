@@ -1,0 +1,165 @@
+---
+title: "09-method-comparison"
+author: Yasi Wang
+date: 10/30/2019
+output: 
+  html_notebook: 
+    highlight: tango
+    theme: cosmo
+---
+
+***Not complete*
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+# Functions needed
+
+```{r}
+# parameters for standard normal distribution and defined gamma distribution
+
+true.normal <- c(201 , 0, 1)
+true.gamma <- c(201, 1.4, 3) 
+
+
+# generate data, normal distribution
+generate_normal <- function(parameters){ 
+  rnorm(parameters[1], mean = parameters[2], sd = parameters[3]) 
+}
+
+# generate data, gamma distribution
+generate_gamma <- function(parameters){
+  rgamma(parameters[1], shape = parameters[2], scale = parameters[3])
+}
+
+# method of moments with normal
+est.mle.normal <- function(data) {
+  mle.mean <- mean(data)
+  mle.sd <- sqrt(((length(data) - 1)/length(data))*var(data))
+  return (c(length(data), mle.mean, mle.sd))
+}
+
+# method of moments with gamma
+est.mle.gamma <- function(data){
+  xbar = mean(data)
+  s2 = var(data)
+  shape_hat <- xbar^2/s2
+  scale_hat <- s2/xbar
+  return (c(length(data), shape_hat, scale_hat))
+}
+
+```
+
+
+```{r}
+# bootstrap process, normal, median
+boot.meds.ci.normal <- function(parameters) {
+  R <- 5000
+  sample.meds.normal <- NA
+  
+  for (i in 1:R) {
+    sample.meds.normal[i] <- parameters %>% generate_normal() %>% median
+  }
+  quantile(sample.meds.normal, c(0.05, 0.95))
+}
+
+# bootstrap process, gamma, median
+boot.meds.ci.gamma <- function(parameters) {
+  R <- 5000
+  sample.meds.gamma <- NA
+  
+  for (i in 1:5000) {
+    sample.meds.gamma[i] <- parameters %>% generate_gamma() %>% median
+  }
+  quantile(sample.meds.gamma, c(0.05, 0.95))
+}
+
+# capture median, normal
+capture_median_normal <- function(ci){
+  1*(ci[1] < 0 & 0 < ci[2])
+}
+
+# capture median, gamma
+capture_median_gamma <- function(ci){
+  1*(ci[1] < 4.2 & 4.2 < ci[2])
+}
+
+```
+
+
+```{r}
+# bootstrap process, normal, min
+boot.min.ci.normal <- function(parameters) {
+  R <- 5000
+  sample.min.normal <- NA
+  
+  for (i in 1:R) {
+    sample.min.normal[i] <- parameters %>% generate_normal() %>% min
+  }
+  quantile(sample.min.normal, c(0.05, 0.95))
+}
+
+# bootstrap process, gamma, min
+boot.min.ci.gamma <- function(parameters) {
+  R <- 5000
+  sample.min.gamma <- NA
+  
+  for (i in 1:5000) {
+    sample.min.gamma[i] <- parameters %>% generate_gamma() %>% min
+  }
+  quantile(sample.min.gamma, c(0.05, 0.95))
+}
+
+# capture min, normal & gamma
+capture_min <- function(ci, data){
+  1*(ci[1] < min(data) & min(data) < ci[2])
+}
+
+```
+
+
+```{r include=FALSE}
+require(doParallel)
+require(foreach)
+
+cores_2_use <- detectCores() - 1
+cl <- makeCluster(cores_2_use)
+clusterSetRNGStream(cl, 2344)
+registerDoParallel(cl)
+```
+
+
+# Start with simulation
+## Method of moments with normal, median
+
+```{r}
+capture1 <- foreach(
+    i = 1:100
+  , .combine = c
+  , .packages = c('dplyr') # Need to indicate which packages
+) %dopar% {
+  true.normal %>% generate_normal %>% est.mle.normal %>% boot.meds.ci.normal %>% capture_median_normal
+}
+
+mean(capture1)
+```
+
+
+## Method of moments with gamma, median
+```{r}
+capture2 <- foreach(
+    i = 1:100
+  , .combine = c
+  , .packages = c('dplyr') # Need to indicate which packages
+) %dopar% {
+  true.gamma %>% generate_gamma %>% est.mle.gamma %>% boot.meds.ci.gamma %>% capture_median_gamma
+}
+
+mean(capture2)
+
+```
+
+
+## Method of moments with 
+
