@@ -288,154 +288,193 @@ summary {
 
 
 <!-- rnb-text-begin -->
-<p>**<em>Not complete</em></p>
-<!-- rnb-text-end -->
-<!-- rnb-text-begin -->
-<div id="functions-needed" class="section level1">
-<h1>Functions needed</h1>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBwYXJhbWV0ZXJzIGZvciBzdGFuZGFyZCBub3JtYWwgZGlzdHJpYnV0aW9uIGFuZCBkZWZpbmVkIGdhbW1hIGRpc3RyaWJ1dGlvblxudHJ1ZS5ub3JtYWwgPC0gYygyMDEgLCAwLCAxKVxudHJ1ZS5nYW1tYSA8LSBjKDIwMSwgMS40LCAzKSBcbiMgZ2VuZXJhdGUgZGF0YSwgbm9ybWFsIGRpc3RyaWJ1dGlvblxuZ2VuZXJhdGVfbm9ybWFsIDwtIGZ1bmN0aW9uKHBhcmFtZXRlcnMpeyBcbiAgcm5vcm0ocGFyYW1ldGVyc1sxXSwgbWVhbiA9IHBhcmFtZXRlcnNbMl0sIHNkID0gcGFyYW1ldGVyc1szXSkgXG59XG4jIGdlbmVyYXRlIGRhdGEsIGdhbW1hIGRpc3RyaWJ1dGlvblxuZ2VuZXJhdGVfZ2FtbWEgPC0gZnVuY3Rpb24ocGFyYW1ldGVycyl7XG4gIHJnYW1tYShwYXJhbWV0ZXJzWzFdLCBzaGFwZSA9IHBhcmFtZXRlcnNbMl0sIHNjYWxlID0gcGFyYW1ldGVyc1szXSlcbn1cbiMgbWV0aG9kIG9mIG1vbWVudHMgd2l0aCBub3JtYWxcbmVzdC5tbGUubm9ybWFsIDwtIGZ1bmN0aW9uKGRhdGEpIHtcbiAgbWxlLm1lYW4gPC0gbWVhbihkYXRhKVxuICBtbGUuc2QgPC0gc3FydCgoKGxlbmd0aChkYXRhKSAtIDEpL2xlbmd0aChkYXRhKSkqdmFyKGRhdGEpKVxuICByZXR1cm4gKGMobGVuZ3RoKGRhdGEpLCBtbGUubWVhbiwgbWxlLnNkKSlcbn1cbiMgbWV0aG9kIG9mIG1vbWVudHMgd2l0aCBnYW1tYVxuZXN0Lm1sZS5nYW1tYSA8LSBmdW5jdGlvbihkYXRhKXtcbiAgeGJhciA9IG1lYW4oZGF0YSlcbiAgczIgPSB2YXIoZGF0YSlcbiAgc2hhcGVfaGF0IDwtIHhiYXJeMi9zMlxuICBzY2FsZV9oYXQgPC0gczIveGJhclxuICByZXR1cm4gKGMobGVuZ3RoKGRhdGEpLCBzaGFwZV9oYXQsIHNjYWxlX2hhdCkpXG59XG5gYGAifQ== -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># parameters for standard normal distribution and defined gamma distribution</span>
-true.normal &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">201</span> , <span class="dv">0</span>, <span class="dv">1</span>)
-true.gamma &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">201</span>, <span class="fl">1.4</span>, <span class="dv">3</span>) 
-<span class="co"># generate data, normal distribution</span>
-generate_normal &lt;-<span class="st"> </span><span class="cf">function</span>(parameters){ 
-  <span class="kw">rnorm</span>(parameters[<span class="dv">1</span>], <span class="dt">mean =</span> parameters[<span class="dv">2</span>], <span class="dt">sd =</span> parameters[<span class="dv">3</span>]) 
-}
-<span class="co"># generate data, gamma distribution</span>
-generate_gamma &lt;-<span class="st"> </span><span class="cf">function</span>(parameters){
-  <span class="kw">rgamma</span>(parameters[<span class="dv">1</span>], <span class="dt">shape =</span> parameters[<span class="dv">2</span>], <span class="dt">scale =</span> parameters[<span class="dv">3</span>])
-}
-<span class="co"># method of moments with normal</span>
-est.mle.normal &lt;-<span class="st"> </span><span class="cf">function</span>(data) {
-  mle.mean &lt;-<span class="st"> </span><span class="kw">mean</span>(data)
-  mle.sd &lt;-<span class="st"> </span><span class="kw">sqrt</span>(((<span class="kw">length</span>(data) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)<span class="op">/</span><span class="kw">length</span>(data))<span class="op">*</span><span class="kw">var</span>(data))
-  <span class="kw">return</span> (<span class="kw">c</span>(<span class="kw">length</span>(data), mle.mean, mle.sd))
-}
-<span class="co"># method of moments with gamma</span>
-est.mle.gamma &lt;-<span class="st"> </span><span class="cf">function</span>(data){
-  xbar =<span class="st"> </span><span class="kw">mean</span>(data)
-  s2 =<span class="st"> </span><span class="kw">var</span>(data)
-  shape_hat &lt;-<span class="st"> </span>xbar<span class="op">^</span><span class="dv">2</span><span class="op">/</span>s2
-  scale_hat &lt;-<span class="st"> </span>s2<span class="op">/</span>xbar
-  <span class="kw">return</span> (<span class="kw">c</span>(<span class="kw">length</span>(data), shape_hat, scale_hat))
-}</code></pre></div>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBib290c3RyYXAgcHJvY2Vzcywgbm9ybWFsLCBtZWRpYW5cbmJvb3QubWVkcy5jaS5ub3JtYWwgPC0gZnVuY3Rpb24ocGFyYW1ldGVycykge1xuICBSIDwtIDUwMDBcbiAgc2FtcGxlLm1lZHMubm9ybWFsIDwtIE5BXG4gIFxuICBmb3IgKGkgaW4gMTpSKSB7XG4gICAgc2FtcGxlLm1lZHMubm9ybWFsW2ldIDwtIHBhcmFtZXRlcnMgJT4lIGdlbmVyYXRlX25vcm1hbCgpICU+JSBtZWRpYW5cbiAgfVxuICBxdWFudGlsZShzYW1wbGUubWVkcy5ub3JtYWwsIGMoMC4wNSwgMC45NSkpXG59XG4jIGJvb3RzdHJhcCBwcm9jZXNzLCBnYW1tYSwgbWVkaWFuXG5ib290Lm1lZHMuY2kuZ2FtbWEgPC0gZnVuY3Rpb24ocGFyYW1ldGVycykge1xuICBSIDwtIDUwMDBcbiAgc2FtcGxlLm1lZHMuZ2FtbWEgPC0gTkFcbiAgXG4gIGZvciAoaSBpbiAxOjUwMDApIHtcbiAgICBzYW1wbGUubWVkcy5nYW1tYVtpXSA8LSBwYXJhbWV0ZXJzICU+JSBnZW5lcmF0ZV9nYW1tYSgpICU+JSBtZWRpYW5cbiAgfVxuICBxdWFudGlsZShzYW1wbGUubWVkcy5nYW1tYSwgYygwLjA1LCAwLjk1KSlcbn1cbiMgY2FwdHVyZSBtZWRpYW4sIG5vcm1hbFxuY2FwdHVyZV9tZWRpYW5fbm9ybWFsIDwtIGZ1bmN0aW9uKGNpKXtcbiAgMSooY2lbMV0gPCAwICYgMCA8IGNpWzJdKVxufVxuIyBjYXB0dXJlIG1lZGlhbiwgZ2FtbWFcbmNhdGNoX21lZGlhbl9nYW1tYSA8LSBmdW5jdGlvbihjaSl7XG4gIDEqKGNpWzFdIDwgNC4yICYgNC4yIDwgY2lbMl0pXG59XG5gYGAifQ== -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># bootstrap process, normal, median</span>
-boot.meds.ci.normal &lt;-<span class="st"> </span><span class="cf">function</span>(parameters) {
-  R &lt;-<span class="st"> </span><span class="dv">5000</span>
-  sample.meds.normal &lt;-<span class="st"> </span><span class="ot">NA</span>
-  
-  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>R) {
-    sample.meds.normal[i] &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">generate_normal</span>() <span class="op">%&gt;%</span><span class="st"> </span>median
-  }
-  <span class="kw">quantile</span>(sample.meds.normal, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
-}
-<span class="co"># bootstrap process, gamma, median</span>
-boot.meds.ci.gamma &lt;-<span class="st"> </span><span class="cf">function</span>(parameters) {
-  R &lt;-<span class="st"> </span><span class="dv">5000</span>
-  sample.meds.gamma &lt;-<span class="st"> </span><span class="ot">NA</span>
-  
-  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>) {
-    sample.meds.gamma[i] &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">generate_gamma</span>() <span class="op">%&gt;%</span><span class="st"> </span>median
-  }
-  <span class="kw">quantile</span>(sample.meds.gamma, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
-}
-<span class="co"># capture median, normal</span>
-capture_median_normal &lt;-<span class="st"> </span><span class="cf">function</span>(ci){
-  <span class="dv">1</span><span class="op">*</span>(ci[<span class="dv">1</span>] <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&lt;</span><span class="st"> </span>ci[<span class="dv">2</span>])
-}
-<span class="co"># capture median, gamma</span>
-catch_median_gamma &lt;-<span class="st"> </span><span class="cf">function</span>(ci){
-  <span class="dv">1</span><span class="op">*</span>(ci[<span class="dv">1</span>] <span class="op">&lt;</span><span class="st"> </span><span class="fl">4.2</span> <span class="op">&amp;</span><span class="st"> </span><span class="fl">4.2</span> <span class="op">&lt;</span><span class="st"> </span>ci[<span class="dv">2</span>])
-}</code></pre></div>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBib290c3RyYXAgcHJvY2Vzcywgbm9ybWFsLCBtaW5cbmJvb3QubWluLmNpLm5vcm1hbCA8LSBmdW5jdGlvbihwYXJhbWV0ZXJzKSB7XG4gIFIgPC0gNTAwMFxuICBzYW1wbGUubWluLm5vcm1hbCA8LSBOQVxuICBcbiAgZm9yIChpIGluIDE6Uikge1xuICAgIHNhbXBsZS5taW4ubm9ybWFsW2ldIDwtIHBhcmFtZXRlcnMgJT4lIGdlbmVyYXRlX25vcm1hbCgpICU+JSBtaW5cbiAgfVxuICBxdWFudGlsZShzYW1wbGUubWluLm5vcm1hbCwgYygwLjA1LCAwLjk1KSlcbn1cbiMgYm9vdHN0cmFwIHByb2Nlc3MsIGdhbW1hLCBtaW5cbmJvb3QubWluLmNpLmdhbW1hIDwtIGZ1bmN0aW9uKHBhcmFtZXRlcnMpIHtcbiAgUiA8LSA1MDAwXG4gIHNhbXBsZS5taW4uZ2FtbWEgPC0gTkFcbiAgXG4gIGZvciAoaSBpbiAxOjUwMDApIHtcbiAgICBzYW1wbGUubWluLmdhbW1hW2ldIDwtIHBhcmFtZXRlcnMgJT4lIGdlbmVyYXRlX2dhbW1hKCkgJT4lIG1pblxuICB9XG4gIHF1YW50aWxlKHNhbXBsZS5taW4uZ2FtbWEsIGMoMC4wNSwgMC45NSkpXG59XG4jIGNhcHR1cmUgbWluLCBub3JtYWwgJiBnYW1tYVxuY2FwdHVyZV9taW5fbm9ybWFsIDwtIGZ1bmN0aW9uKGNpLCBkYXRhKXtcbiAgMSooY2lbMV0gPCBtaW4oZGF0YSkgJiBtaW4oZGF0YSkgPCBjaVsyXSlcbn1cbmBgYCJ9 -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># bootstrap process, normal, min</span>
-boot.min.ci.normal &lt;-<span class="st"> </span><span class="cf">function</span>(parameters) {
-  R &lt;-<span class="st"> </span><span class="dv">5000</span>
-  sample.min.normal &lt;-<span class="st"> </span><span class="ot">NA</span>
-  
-  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>R) {
-    sample.min.normal[i] &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">generate_normal</span>() <span class="op">%&gt;%</span><span class="st"> </span>min
-  }
-  <span class="kw">quantile</span>(sample.min.normal, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
-}
-<span class="co"># bootstrap process, gamma, min</span>
-boot.min.ci.gamma &lt;-<span class="st"> </span><span class="cf">function</span>(parameters) {
-  R &lt;-<span class="st"> </span><span class="dv">5000</span>
-  sample.min.gamma &lt;-<span class="st"> </span><span class="ot">NA</span>
-  
-  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>) {
-    sample.min.gamma[i] &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">generate_gamma</span>() <span class="op">%&gt;%</span><span class="st"> </span>min
-  }
-  <span class="kw">quantile</span>(sample.min.gamma, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
-}
-<span class="co"># capture min, normal &amp; gamma</span>
-capture_min_normal &lt;-<span class="st"> </span><span class="cf">function</span>(ci, data){
-  <span class="dv">1</span><span class="op">*</span>(ci[<span class="dv">1</span>] <span class="op">&lt;</span><span class="st"> </span><span class="kw">min</span>(data) <span class="op">&amp;</span><span class="st"> </span><span class="kw">min</span>(data) <span class="op">&lt;</span><span class="st"> </span>ci[<span class="dv">2</span>])
-}</code></pre></div>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-text-begin -->
+<p>Last time, we’ve discussed about confidence interval (CI) and coverage probability. This time, we will do more simulations with different estimations and caculate their corresponding coverage probabilities.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<hr />
+<div id="method-of-moment-estimation" class="section level2">
+<h2>Method of Moment estimation</h2>
 </div>
-<div id="start-with-simulation" class="section level1">
-<h1>Start with simulation</h1>
-<div id="method-of-moments-with-normal-median" class="section level2">
-<h2>Method of moments with normal, median</h2>
+<div id="kernal-density-estimation" class="section level2">
+<h2>Kernal Density estimation</h2>
+</div>
+<div id="bootstrap-estimation" class="section level2">
+<h2>Bootstrap estimation</h2>
+<!-- rnb-text-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FwdHVyZTEgPC0gZm9yZWFjaChcbiAgICBpID0gMToxMDBcbiAgLCAuY29tYmluZSA9IGNcbiAgLCAucGFja2FnZXMgPSBjKCdkcGx5cicpICMgTmVlZCB0byBpbmRpY2F0ZSB3aGljaCBwYWNrYWdlc1xuKSAlZG9wYXIlIHtcbiAgdHJ1ZS5ub3JtYWwgJT4lIGdlbmVyYXRlX25vcm1hbCAlPiUgZXN0Lm1sZS5ub3JtYWwgJT4lIGJvb3QubWVkcy5jaS5ub3JtYWwgJT4lIGNhcHR1cmVfbWVkaWFuX25vcm1hbFxufVxubWVhbihjYXB0dXJlMSlcbmBgYCJ9 -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">capture1 &lt;-<span class="st"> </span><span class="kw">foreach</span>(
-    <span class="dt">i =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>
-  , <span class="dt">.combine =</span> c
-  , <span class="dt">.packages =</span> <span class="kw">c</span>(<span class="st">'dplyr'</span>) <span class="co"># Need to indicate which packages</span>
-) <span class="op">%dopar%</span><span class="st"> </span>{
-  true.normal <span class="op">%&gt;%</span><span class="st"> </span>generate_normal <span class="op">%&gt;%</span><span class="st"> </span>est.mle.normal <span class="op">%&gt;%</span><span class="st"> </span>boot.meds.ci.normal <span class="op">%&gt;%</span><span class="st"> </span>capture_median_normal
-}
-<span class="kw">mean</span>(capture1)</code></pre></div>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VuZXJhdGVfZGF0YSA8LSBmdW5jdGlvbihOLCBkaXN0LCBzaCwgc2MpIHtcbiAgaWYoZGlzdCA9PSBcIm5vcm1cIikge1xuICAgIHJldHVybihybm9ybShOKSArIDQpXG4gIH0gZWxzZSBpZihkaXN0ID09IFwiZ2FtbWFcIikge1xuICAgIHJldHVybihyZ2FtbWEoTiwgc2hhcGUgPSBzaCwgc2NhbGUgPSBzYykpXG4gIH1cbn1cbmBgYCJ9 -->
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">generate_data &lt;-<span class="st"> </span><span class="cf">function</span>(N, dist, sh, sc) {
+  <span class="cf">if</span>(dist <span class="op">==</span><span class="st"> &quot;norm&quot;</span>) {
+    <span class="kw">return</span>(<span class="kw">rnorm</span>(N) <span class="op">+</span><span class="st"> </span><span class="dv">4</span>)
+  } <span class="cf">else</span> <span class="cf">if</span>(dist <span class="op">==</span><span class="st"> &quot;gamma&quot;</span>) {
+    <span class="kw">return</span>(<span class="kw">rgamma</span>(N, <span class="dt">shape =</span> sh, <span class="dt">scale =</span> sc))
+  }
+}</code></pre></div>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuOTNcbiJ9 -->
-<pre><code>[1] 0.93</code></pre>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXN0aW1hdGUuY2kgPC0gZnVuY3Rpb24oZGF0YSwgbW9kLCBSID0gMTAsIHBhci5pbnQsIHNtb28gPSAwLjMpIHtcbiAgTiA8LSBsZW5ndGgoZGF0YSlcbiAgc3VtLm1lYXN1cmUgPC0gZ2V0KHBhci5pbnQpXG4gICMgaWYgKG1vZCA9PSBcIk1Nbm9ybVwiKSB7XG4gICMgICAgbW0ubWVhbiA8LSBtZWFuKGRhdGEpXG4gICMgICAgbW0uc2QgPC0gc2QoZGF0YSlcbiAgIyAgICBzYW1wLmRpc3QgPC0gTkFcbiAgIyAgICBcbiAgIyAgICBmb3IgKGkgaW4gMTpSKSB7XG4gICMgICAgIHNpbS5kYXRhIDwtIHJub3JtKGxlbmd0aChkYXRhKSwgbW0ubWVhbiwgbW0uc2QpXG4gICMgICAgIGlmKHBhci5pbnQgPT0gXCJtZWRpYW5cIikge1xuICAjICAgICAgIHNhbXAuZGlzdCA8LSBtZWRpYW4oc2ltLmRhdGEpXG4gICMgICAgICAgfSBlbHNlIGlmKHBhci5pbnQgPT0gXCJtaW5cIikge1xuICAjICAgICAgICAgc2FtcC5kaXN0IDwtIG1pbihzaW0uZGF0YSlcbiAgIyAgICAgICB9XG4gICMgICAgfVxuICBpZiAobW9kPT1cIk1Nbm9ybVwiKXsgIyBhc3N1bWUgdGhlIGRhdGEgaXMgbm9ybWFsXG4gICAgbW0ubWVhbiA8LSBtZWFuKGRhdGEpXG4gICAgbW0uc2QgPC0gc2QoZGF0YSlcbiAgICBzaW0uZGF0YSA8LSBybm9ybShsZW5ndGgoZGF0YSksbW0ubWVhbixtbS5zZClcbiAgICBcbiAgICBzaW0uZGF0YSA8LSBhcnJheShybm9ybShOKlIsbW0ubWVhbixtbS5zZCksZGltPWMoTixSKSlcbiAgICBzYW1wLmRpc3QgPC0gYXBwbHkoc2ltLmRhdGEsMixzdW0ubWVhc3VyZSlcbiAgfSBlbHNlIGlmKG1vZCA9PSBcIk1NZ2FtbWFcIikge1xuICAgIG1tLnNoYXBlIDwtIG1lYW4oZGF0YSleMi92YXIoZGF0YSlcbiAgICBtbS5zY2FsZSA8LSB2YXIoZGF0YSkvbWVhbihkYXRhKVxuICAgIFxuICAgIHNpbS5kYXRhIDwtIGFycmF5KHJnYW1tYShsZW5ndGgoZGF0YSkqUiwgc2hhcGUgPSBtbS5zaGFwZSwgc2NhbGUgPSBtbS5zY2FsZSksIGRpbSA9IGMoTiwgUikpXG4gICAgc2FtcC5kaXN0IDwtIGFwcGx5KHNpbS5kYXRhLCAyLCBGVU4gPSBzdW0ubWVhc3VyZSlcbiAgICBcbiAgfSBlbHNlIGlmKG1vZCA9PSBcIktERVwiKSB7ICMgT2N0Ljl0aCBzbGlkZVxuICAgIGVjZGZzdGFyIDwtIGZ1bmN0aW9uKHQsIGRhdGEsIHNtb290aCA9IHNtb28pIHtcbiAgICAgIG91dGVyKHQsIGRhdGEsIGZ1bmN0aW9uKGEsIGIpIHtwbm9ybShhLCBiLCBzbW9vdGgpfSkgJT4lIHJvd01lYW5zXG4gICAgICB9XG4gICAgXG4gICAgdGJsIDwtIGRhdGEuZnJhbWUoXG4gICAgICB4ID0gc2VxKG1pbihkYXRhKSAtIDIqc2QoZGF0YSksIG1heChkYXRhKSArIDIqc2QoZGF0YSksIGJ5ID0gMC4wMSlcbiAgICApXG4gICAgdGJsJHAgPC0gZWNkZnN0YXIodGJsJHgsIGRhdGEsIHNtb28pXG4gICAgdGJsIDwtIHRibFshZHVwbGljYXRlZCh0YmwkcCksXVxuICAgIFxuICAgIHFrZGUgPC0gZnVuY3Rpb24ocHMsIHRibCl7XG4gICAgICByb3dzIDwtIGN1dChwcywgdGJsJHAsIGxhYmVscyA9IEZBTFNFKVxuICAgICAgdGJsW3Jvd3MsIFwieFwiXVxuICAgICAgfVxuICAgIFxuICAgIFUgPC0gcnVuaWYoTiAqIFIpXG4gICAgc2ltLmRhdGEgPC0gYXJyYXkocWtkZShVLCB0YmwpLCBkaW0gPSBjKE4sIFIpKVxuICAgIHNhbXAuZGlzdCA8LSBhcHBseShzaW0uZGF0YSwgMiwgRlVOID0gc3VtLm1lYXN1cmUpXG4gIH0gZWxzZSBpZihtb2QgPT0gXCJCb290XCIpIHtcbiAgICBzaW0uZGF0YSA8LSBhcnJheShzYW1wbGUoZGF0YSwgTiAqIFIsIHJlcGxhY2UgPSBUUlVFKSwgZGltID0gYyhOLCBSKSlcbiAgICBzYW1wLmRpc3QgPC0gYXBwbHkoc2ltLmRhdGEsIDIsIEZVTiA9IHN1bS5tZWFzdXJlKVxuICAgIFxuICB9XG4gIHJldHVybihxdWFudGlsZShzYW1wLmRpc3QsIGMoMC4wNSwgMC45NSkpKVxufVxuY2FwdHVyZV9wYXIgPC0gZnVuY3Rpb24oY2ksIHRydWUucGFyKSB7XG4gIDEgKiAoY2lbMV0gPCB0cnVlLnBhciAmIHRydWUucGFyIDwgY2lbMl0pXG59XG5gYGAifQ== -->
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimate.ci &lt;-<span class="st"> </span><span class="cf">function</span>(data, mod, <span class="dt">R =</span> <span class="dv">10</span>, par.int, <span class="dt">smoo =</span> <span class="fl">0.3</span>) {
+  N &lt;-<span class="st"> </span><span class="kw">length</span>(data)
+  sum.measure &lt;-<span class="st"> </span><span class="kw">get</span>(par.int)
+  <span class="co"># if (mod == &quot;MMnorm&quot;) {</span>
+  <span class="co">#    mm.mean &lt;- mean(data)</span>
+  <span class="co">#    mm.sd &lt;- sd(data)</span>
+  <span class="co">#    samp.dist &lt;- NA</span>
+  <span class="co">#    </span>
+  <span class="co">#    for (i in 1:R) {</span>
+  <span class="co">#     sim.data &lt;- rnorm(length(data), mm.mean, mm.sd)</span>
+  <span class="co">#     if(par.int == &quot;median&quot;) {</span>
+  <span class="co">#       samp.dist &lt;- median(sim.data)</span>
+  <span class="co">#       } else if(par.int == &quot;min&quot;) {</span>
+  <span class="co">#         samp.dist &lt;- min(sim.data)</span>
+  <span class="co">#       }</span>
+  <span class="co">#    }</span>
+  <span class="cf">if</span> (mod<span class="op">==</span><span class="st">&quot;MMnorm&quot;</span>){ <span class="co"># assume the data is normal</span>
+    mm.mean &lt;-<span class="st"> </span><span class="kw">mean</span>(data)
+    mm.sd &lt;-<span class="st"> </span><span class="kw">sd</span>(data)
+    sim.data &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="kw">length</span>(data),mm.mean,mm.sd)
+    
+    sim.data &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">rnorm</span>(N<span class="op">*</span>R,mm.mean,mm.sd),<span class="dt">dim=</span><span class="kw">c</span>(N,R))
+    samp.dist &lt;-<span class="st"> </span><span class="kw">apply</span>(sim.data,<span class="dv">2</span>,sum.measure)
+  } <span class="cf">else</span> <span class="cf">if</span>(mod <span class="op">==</span><span class="st"> &quot;MMgamma&quot;</span>) {
+    mm.shape &lt;-<span class="st"> </span><span class="kw">mean</span>(data)<span class="op">^</span><span class="dv">2</span><span class="op">/</span><span class="kw">var</span>(data)
+    mm.scale &lt;-<span class="st"> </span><span class="kw">var</span>(data)<span class="op">/</span><span class="kw">mean</span>(data)
+    
+    sim.data &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">rgamma</span>(<span class="kw">length</span>(data)<span class="op">*</span>R, <span class="dt">shape =</span> mm.shape, <span class="dt">scale =</span> mm.scale), <span class="dt">dim =</span> <span class="kw">c</span>(N, R))
+    samp.dist &lt;-<span class="st"> </span><span class="kw">apply</span>(sim.data, <span class="dv">2</span>, <span class="dt">FUN =</span> sum.measure)
+    
+  } <span class="cf">else</span> <span class="cf">if</span>(mod <span class="op">==</span><span class="st"> &quot;KDE&quot;</span>) { <span class="co"># Oct.9th slide</span>
+    ecdfstar &lt;-<span class="st"> </span><span class="cf">function</span>(t, data, <span class="dt">smooth =</span> smoo) {
+      <span class="kw">outer</span>(t, data, <span class="cf">function</span>(a, b) {<span class="kw">pnorm</span>(a, b, smooth)}) <span class="op">%&gt;%</span><span class="st"> </span>rowMeans
+      }
+    
+    tbl &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
+      <span class="dt">x =</span> <span class="kw">seq</span>(<span class="kw">min</span>(data) <span class="op">-</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">sd</span>(data), <span class="kw">max</span>(data) <span class="op">+</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">sd</span>(data), <span class="dt">by =</span> <span class="fl">0.01</span>)
+    )
+    tbl<span class="op">$</span>p &lt;-<span class="st"> </span><span class="kw">ecdfstar</span>(tbl<span class="op">$</span>x, data, smoo)
+    tbl &lt;-<span class="st"> </span>tbl[<span class="op">!</span><span class="kw">duplicated</span>(tbl<span class="op">$</span>p),]
+    
+    qkde &lt;-<span class="st"> </span><span class="cf">function</span>(ps, tbl){
+      rows &lt;-<span class="st"> </span><span class="kw">cut</span>(ps, tbl<span class="op">$</span>p, <span class="dt">labels =</span> <span class="ot">FALSE</span>)
+      tbl[rows, <span class="st">&quot;x&quot;</span>]
+      }
+    
+    U &lt;-<span class="st"> </span><span class="kw">runif</span>(N <span class="op">*</span><span class="st"> </span>R)
+    sim.data &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">qkde</span>(U, tbl), <span class="dt">dim =</span> <span class="kw">c</span>(N, R))
+    samp.dist &lt;-<span class="st"> </span><span class="kw">apply</span>(sim.data, <span class="dv">2</span>, <span class="dt">FUN =</span> sum.measure)
+  } <span class="cf">else</span> <span class="cf">if</span>(mod <span class="op">==</span><span class="st"> &quot;Boot&quot;</span>) {
+    sim.data &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">sample</span>(data, N <span class="op">*</span><span class="st"> </span>R, <span class="dt">replace =</span> <span class="ot">TRUE</span>), <span class="dt">dim =</span> <span class="kw">c</span>(N, R))
+    samp.dist &lt;-<span class="st"> </span><span class="kw">apply</span>(sim.data, <span class="dv">2</span>, <span class="dt">FUN =</span> sum.measure)
+    
+  }
+  <span class="kw">return</span>(<span class="kw">quantile</span>(samp.dist, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>)))
+}
+capture_par &lt;-<span class="st"> </span><span class="cf">function</span>(ci, true.par) {
+  <span class="dv">1</span> <span class="op">*</span><span class="st"> </span>(ci[<span class="dv">1</span>] <span class="op">&lt;</span><span class="st"> </span>true.par <span class="op">&amp;</span><span class="st"> </span>true.par <span class="op">&lt;</span><span class="st"> </span>ci[<span class="dv">2</span>])
+}</code></pre></div>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBPbmUgcmVwbGljYXRlXG5OIDwtIDIwMVxuc2hhcGUuc2V0IDwtIDEuNFxuc2NhbGUuc2V0IDwtIDNcbnRydWUubm9ybS5tZWQgPC0gcW5vcm0oMC41KVxudHJ1ZS5ub3JtLm1pbiA8LSBtZWFuKGFwcGx5KGFycmF5KHJub3JtKE4qMTAwMDApLCBkaW0gPSBjKE4sIDEwMDAwKSksIDIsIG1pbikpXG50cnVlLmdhbW1hLm1lZCA8LSBxZ2FtbWEoMC41LCBzaGFwZSA9IHNoYXBlLnNldCwgc2NhbGUgPSBzY2FsZS5zZXQpIFxudHJ1ZS5nYW1tYS5taW4gPC0gbWVhbihhcHBseShhcnJheShyZ2FtbWEoTioxMDAwMCwgc2hhcGUgPSBzaGFwZS5zZXQsIHNjYWxlID0gc2NhbGUuc2V0KSwgZGltID0gYyhOLCAxMDAwMCkpLCAyLCBtaW4pKVxuICBcbmRpc3QxIDwtIFwibm9ybVwiXG5tb2RlbDEgPC0gXCJNTW5vcm1cIlxucGFyLmludDEgPC0gXCJtZWRpYW5cIlxuY292ZXIgPC0gTkFcbmZvciAoc2ltcyBpbiAxOjEwMCkge1xuICBjb3ZlcltzaW1zXSA8LSBnZW5lcmF0ZV9kYXRhKE4sIGRpc3QxKSAlPiUgZXN0aW1hdGUuY2kobW9kID0gbW9kZWwxLCBwYXIuaW50ID0gcGFyLmludDEsIFIgPSAxMDAwKSAlPiUgY2FwdHVyZV9wYXIodHJ1ZS5wYXIgPSB0cnVlLm5vcm0ubWVkICsgNClcbn1cbm1lYW4oY292ZXIpXG5gYGAifQ== -->
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># One replicate</span>
+N &lt;-<span class="st"> </span><span class="dv">201</span>
+shape.set &lt;-<span class="st"> </span><span class="fl">1.4</span>
+scale.set &lt;-<span class="st"> </span><span class="dv">3</span>
+true.norm.med &lt;-<span class="st"> </span><span class="kw">qnorm</span>(<span class="fl">0.5</span>)
+true.norm.min &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">apply</span>(<span class="kw">array</span>(<span class="kw">rnorm</span>(N<span class="op">*</span><span class="dv">10000</span>), <span class="dt">dim =</span> <span class="kw">c</span>(N, <span class="dv">10000</span>)), <span class="dv">2</span>, min))
+true.gamma.med &lt;-<span class="st"> </span><span class="kw">qgamma</span>(<span class="fl">0.5</span>, <span class="dt">shape =</span> shape.set, <span class="dt">scale =</span> scale.set) 
+true.gamma.min &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">apply</span>(<span class="kw">array</span>(<span class="kw">rgamma</span>(N<span class="op">*</span><span class="dv">10000</span>, <span class="dt">shape =</span> shape.set, <span class="dt">scale =</span> scale.set), <span class="dt">dim =</span> <span class="kw">c</span>(N, <span class="dv">10000</span>)), <span class="dv">2</span>, min))
+  
+dist1 &lt;-<span class="st"> &quot;norm&quot;</span>
+model1 &lt;-<span class="st"> &quot;MMnorm&quot;</span>
+par.int1 &lt;-<span class="st"> &quot;median&quot;</span>
+cover &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="cf">for</span> (sims <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>) {
+  cover[sims] &lt;-<span class="st"> </span><span class="kw">generate_data</span>(N, dist1) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">estimate.ci</span>(<span class="dt">mod =</span> model1, <span class="dt">par.int =</span> par.int1, <span class="dt">R =</span> <span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">capture_par</span>(<span class="dt">true.par =</span> true.norm.med <span class="op">+</span><span class="st"> </span><span class="dv">4</span>)
+}
+<span class="kw">mean</span>(cover)</code></pre></div>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuOTdcbiJ9 -->
+<pre><code>[1] 0.97</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-</div>
-<div id="method-of-moments-with-gamma-median" class="section level2">
-<h2>Method of moments with gamma, median</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FwdHVyZTIgPC0gZm9yZWFjaChcbiAgICBpID0gMToxMDBcbiAgLCAuY29tYmluZSA9IGNcbiAgLCAucGFja2FnZXMgPSBjKCdkcGx5cicpICMgTmVlZCB0byBpbmRpY2F0ZSB3aGljaCBwYWNrYWdlc1xuKSAlZG9wYXIlIHtcbiAgdHJ1ZS5nYW1tYSAlPiUgZ2VuZXJhdGVfZ2FtbWEgJT4lIGVzdC5tbGUuZ2FtbWEgJT4lIGJvb3QubWVkcy5jaS5nYW1tYSAlPiUgY2FwdHVyZV9tZWRpYW5fZ2FtbWFcbn1cbmBgYCJ9 -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">capture2 &lt;-<span class="st"> </span><span class="kw">foreach</span>(
-    <span class="dt">i =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>
-  , <span class="dt">.combine =</span> c
-  , <span class="dt">.packages =</span> <span class="kw">c</span>(<span class="st">'dplyr'</span>) <span class="co"># Need to indicate which packages</span>
-) <span class="op">%dopar%</span><span class="st"> </span>{
-  true.gamma <span class="op">%&gt;%</span><span class="st"> </span>generate_gamma <span class="op">%&gt;%</span><span class="st"> </span>est.mle.gamma <span class="op">%&gt;%</span><span class="st"> </span>boot.meds.ci.gamma <span class="op">%&gt;%</span><span class="st"> </span>capture_median_gamma
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2ltc2V0dGluZ3MgPC0gZXhwYW5kLmdyaWQoZGlzdCA9IGMoXCJub3JtXCIsIFwiZ2FtbWFcIiksIG1vZGVsID0gYyhcIk1Nbm9ybVwiLCBcIk1NZ2FtbWFcIiwgXCJLREVcIiwgXCJCb290XCIpLCBwYXIuaW50ID0gYyhcIm1lZGlhblwiLCBcIm1pblwiKSwgY292LnByb2IgPU5BLCBzdHJpbmdzQXNGYWN0b3JzID0gRkFMU0UsIEtFRVAuT1VULkFUVFJTID0gRkFMU0UpXG5mb3IgKGsgaW4gMTpucm93KHNpbXNldHRpbmdzKSl7XG4gIGRpc3QxIDwtIHNpbXNldHRpbmdzW2ssIDFdXG4gIG1vZGVsMSA8LSBzaW1zZXR0aW5nc1trLCAyXVxuICBwYXIuaW50MSA8LSBzaW1zZXR0aW5nc1trLCAzXVxuICBcbiAgaWYgKGRpc3QxID09IFwibm9ybVwiICYgcGFyLmludDEgPT0gXCJtZWRpYW5cIikge1xuICAgIHRydWUucGFyMSA9IHRydWUubm9ybS5tZWQgKyA0XG4gIH0gZWxzZSBpZiAoZGlzdDEgPT0gXCJnYW1tYVwiICYgcGFyLmludDEgPT0gXCJtZWRpYW5cIikge1xuICAgIHRydWUucGFyMSA9IHRydWUuZ2FtbWEubWVkXG4gIH0gZWxzZSBpZiAoZGlzdDEgPT0gXCJub3JtXCIgJiBwYXIuaW50MSA9PSBcIm1pblwiKSB7XG4gICAgdHJ1ZS5wYXIxID0gdHJ1ZS5ub3JtLm1pbiArIDRcbiAgfSBlbHNlIGlmIChkaXN0MSA9PSBcImdhbW1hXCIgJiBwYXIuaW50MSA9PSBcIm1pblwiKSB7XG4gICAgdHJ1ZS5wYXIxID0gdHJ1ZS5nYW1tYS5taW5cbiAgfVxuICBjb3ZlciA8LSBOQVxuICBcbiAgZm9yIChzaW1zIGluIDE6MTAwKSB7XG4gICAgY292ZXJbc2ltc10gPC0gZ2VuZXJhdGVfZGF0YShOLCBkaXN0MSwgc2ggPSBzaGFwZS5zZXQsIHNjID0gc2NhbGUuc2V0KSAlPiUgZXN0aW1hdGUuY2kobW9kID0gbW9kZWwxLCBwYXIuaW50ID0gcGFyLmludDEsIFIgPSAxMDAwKSAlPiUgY2FwdHVyZV9wYXIodHJ1ZS5wYXIgPSB0cnVlLnBhcjEpXG4gICAgc2ltc2V0dGluZ3NbayAsNF0gPC0gbWVhbihjb3ZlcilcbiAgfVxufVxuYGBgIn0= -->
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">simsettings &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">dist =</span> <span class="kw">c</span>(<span class="st">&quot;norm&quot;</span>, <span class="st">&quot;gamma&quot;</span>), <span class="dt">model =</span> <span class="kw">c</span>(<span class="st">&quot;MMnorm&quot;</span>, <span class="st">&quot;MMgamma&quot;</span>, <span class="st">&quot;KDE&quot;</span>, <span class="st">&quot;Boot&quot;</span>), <span class="dt">par.int =</span> <span class="kw">c</span>(<span class="st">&quot;median&quot;</span>, <span class="st">&quot;min&quot;</span>), <span class="dt">cov.prob =</span><span class="ot">NA</span>, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>, <span class="dt">KEEP.OUT.ATTRS =</span> <span class="ot">FALSE</span>)
+<span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(simsettings)){
+  dist1 &lt;-<span class="st"> </span>simsettings[k, <span class="dv">1</span>]
+  model1 &lt;-<span class="st"> </span>simsettings[k, <span class="dv">2</span>]
+  par.int1 &lt;-<span class="st"> </span>simsettings[k, <span class="dv">3</span>]
+  
+  <span class="cf">if</span> (dist1 <span class="op">==</span><span class="st"> &quot;norm&quot;</span> <span class="op">&amp;</span><span class="st"> </span>par.int1 <span class="op">==</span><span class="st"> &quot;median&quot;</span>) {
+    true.par1 =<span class="st"> </span>true.norm.med <span class="op">+</span><span class="st"> </span><span class="dv">4</span>
+  } <span class="cf">else</span> <span class="cf">if</span> (dist1 <span class="op">==</span><span class="st"> &quot;gamma&quot;</span> <span class="op">&amp;</span><span class="st"> </span>par.int1 <span class="op">==</span><span class="st"> &quot;median&quot;</span>) {
+    true.par1 =<span class="st"> </span>true.gamma.med
+  } <span class="cf">else</span> <span class="cf">if</span> (dist1 <span class="op">==</span><span class="st"> &quot;norm&quot;</span> <span class="op">&amp;</span><span class="st"> </span>par.int1 <span class="op">==</span><span class="st"> &quot;min&quot;</span>) {
+    true.par1 =<span class="st"> </span>true.norm.min <span class="op">+</span><span class="st"> </span><span class="dv">4</span>
+  } <span class="cf">else</span> <span class="cf">if</span> (dist1 <span class="op">==</span><span class="st"> &quot;gamma&quot;</span> <span class="op">&amp;</span><span class="st"> </span>par.int1 <span class="op">==</span><span class="st"> &quot;min&quot;</span>) {
+    true.par1 =<span class="st"> </span>true.gamma.min
+  }
+  cover &lt;-<span class="st"> </span><span class="ot">NA</span>
+  
+  <span class="cf">for</span> (sims <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>) {
+    cover[sims] &lt;-<span class="st"> </span><span class="kw">generate_data</span>(N, dist1, <span class="dt">sh =</span> shape.set, <span class="dt">sc =</span> scale.set) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">estimate.ci</span>(<span class="dt">mod =</span> model1, <span class="dt">par.int =</span> par.int1, <span class="dt">R =</span> <span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">capture_par</span>(<span class="dt">true.par =</span> true.par1)
+    simsettings[k ,<span class="dv">4</span>] &lt;-<span class="st"> </span><span class="kw">mean</span>(cover)
+  }
 }</code></pre></div>
 <!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2ltc2V0dGluZ3NcbmBgYCJ9 -->
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">simsettings</code></pre></div>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgIGRpc3QgICBtb2RlbCBwYXIuaW50IGNvdi5wcm9iXG4xICAgbm9ybSAgTU1ub3JtICBtZWRpYW4gICAgIDAuOTBcbjIgIGdhbW1hICBNTW5vcm0gIG1lZGlhbiAgICAgMC4wMlxuMyAgIG5vcm0gTU1nYW1tYSAgbWVkaWFuICAgICAwLjgxXG40ICBnYW1tYSBNTWdhbW1hICBtZWRpYW4gICAgIDAuOTNcbjUgICBub3JtICAgICBLREUgIG1lZGlhbiAgICAgMC45MlxuNiAgZ2FtbWEgICAgIEtERSAgbWVkaWFuICAgICAwLjkyXG43ICAgbm9ybSAgICBCb290ICBtZWRpYW4gICAgIDAuOTNcbjggIGdhbW1hICAgIEJvb3QgIG1lZGlhbiAgICAgMC44N1xuOSAgIG5vcm0gIE1Nbm9ybSAgICAgbWluICAgICAxLjAwXG4xMCBnYW1tYSAgTU1ub3JtICAgICBtaW4gICAgIDAuMDBcbjExICBub3JtIE1NZ2FtbWEgICAgIG1pbiAgICAgMC4wNFxuMTIgZ2FtbWEgTU1nYW1tYSAgICAgbWluICAgICAwLjk5XG4xMyAgbm9ybSAgICAgS0RFICAgICBtaW4gICAgIDAuOTNcbjE0IGdhbW1hICAgICBLREUgICAgIG1pbiAgICAgMC4zOFxuMTUgIG5vcm0gICAgQm9vdCAgICAgbWluICAgICAwLjU0XG4xNiBnYW1tYSAgICBCb290ICAgICBtaW4gICAgIDAuNTRcbiJ9 -->
+<pre><code>    dist   model par.int cov.prob
+1   norm  MMnorm  median     0.90
+2  gamma  MMnorm  median     0.02
+3   norm MMgamma  median     0.81
+4  gamma MMgamma  median     0.93
+5   norm     KDE  median     0.92
+6  gamma     KDE  median     0.92
+7   norm    Boot  median     0.93
+8  gamma    Boot  median     0.87
+9   norm  MMnorm     min     1.00
+10 gamma  MMnorm     min     0.00
+11  norm MMgamma     min     0.04
+12 gamma MMgamma     min     0.99
+13  norm     KDE     min     0.93
+14 gamma     KDE     min     0.38
+15  norm    Boot     min     0.54
+16 gamma    Boot     min     0.54</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
 <div id="method-of-moments-with" class="section level2">
 <h2>Method of moments with</h2>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>Method of moments often has best simulating accuracy than bootstrap if the distribution is assume is right. I think it is because method of moments is an estimation method with parameters. However, when the true distribution is gamma distribution, if fails to capture the minimum value of sample distribution.</p>
+<p>Bootstrap estimates with more accuracy when the true distribution is standard norml, whereas its coverage probability becomes really low when the true distribution is gamm distribution.</p>
+<p>Compared two parameters, it’s much more easier for estimation method to cathch median value of true distribution than minimum value of each sample in standard normal distribution. It could be related my old blogs, which reveals the median value of samples from normal distribution is much less volatile than other values. Therefore, the coverage probability is high.</p>
+<p>As I finally successed in using kernal density estimation to simulate distribution, I don’t think it is a good way to estimate coverage probability. As it is aimed to plot a smooth graph of sample distribution and it is a method of non-parametric estimation. The result is the same as I expected, kernal density estimation has relatively low accuracy in gamma distribution. It performs only good when estimating standard normal distribution.</p>
 <!-- rnb-text-end -->
 </div>
-</div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIjA5LW1ldGhvZC1jb21wYXJpc29uIg0KYXV0aG9yOiBZYXNpIFdhbmcNCmRhdGU6IDEwLzMwLzIwMTkNCm91dHB1dDogDQogIGh0bWxfbm90ZWJvb2s6IA0KICAgIGhpZ2hsaWdodDogdGFuZ28NCiAgICB0aGVtZTogY29zbW8NCi0tLQ0KDQoqKipOb3QgY29tcGxldGUqDQoNCmBgYHtyIGluY2x1ZGU9RkFMU0V9DQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmBgYA0KDQojIEZ1bmN0aW9ucyBuZWVkZWQNCg0KYGBge3J9DQojIHBhcmFtZXRlcnMgZm9yIHN0YW5kYXJkIG5vcm1hbCBkaXN0cmlidXRpb24gYW5kIGRlZmluZWQgZ2FtbWEgZGlzdHJpYnV0aW9uDQoNCnRydWUubm9ybWFsIDwtIGMoMjAxICwgMCwgMSkNCnRydWUuZ2FtbWEgPC0gYygyMDEsIDEuNCwgMykgDQoNCg0KIyBnZW5lcmF0ZSBkYXRhLCBub3JtYWwgZGlzdHJpYnV0aW9uDQpnZW5lcmF0ZV9ub3JtYWwgPC0gZnVuY3Rpb24ocGFyYW1ldGVycyl7IA0KICBybm9ybShwYXJhbWV0ZXJzWzFdLCBtZWFuID0gcGFyYW1ldGVyc1syXSwgc2QgPSBwYXJhbWV0ZXJzWzNdKSANCn0NCg0KIyBnZW5lcmF0ZSBkYXRhLCBnYW1tYSBkaXN0cmlidXRpb24NCmdlbmVyYXRlX2dhbW1hIDwtIGZ1bmN0aW9uKHBhcmFtZXRlcnMpew0KICByZ2FtbWEocGFyYW1ldGVyc1sxXSwgc2hhcGUgPSBwYXJhbWV0ZXJzWzJdLCBzY2FsZSA9IHBhcmFtZXRlcnNbM10pDQp9DQoNCiMgbWV0aG9kIG9mIG1vbWVudHMgd2l0aCBub3JtYWwNCmVzdC5tbGUubm9ybWFsIDwtIGZ1bmN0aW9uKGRhdGEpIHsNCiAgbWxlLm1lYW4gPC0gbWVhbihkYXRhKQ0KICBtbGUuc2QgPC0gc3FydCgoKGxlbmd0aChkYXRhKSAtIDEpL2xlbmd0aChkYXRhKSkqdmFyKGRhdGEpKQ0KICByZXR1cm4gKGMobGVuZ3RoKGRhdGEpLCBtbGUubWVhbiwgbWxlLnNkKSkNCn0NCg0KIyBtZXRob2Qgb2YgbW9tZW50cyB3aXRoIGdhbW1hDQplc3QubWxlLmdhbW1hIDwtIGZ1bmN0aW9uKGRhdGEpew0KICB4YmFyID0gbWVhbihkYXRhKQ0KICBzMiA9IHZhcihkYXRhKQ0KICBzaGFwZV9oYXQgPC0geGJhcl4yL3MyDQogIHNjYWxlX2hhdCA8LSBzMi94YmFyDQogIHJldHVybiAoYyhsZW5ndGgoZGF0YSksIHNoYXBlX2hhdCwgc2NhbGVfaGF0KSkNCn0NCg0KYGBgDQoNCg0KYGBge3J9DQojIGJvb3RzdHJhcCBwcm9jZXNzLCBub3JtYWwsIG1lZGlhbg0KYm9vdC5tZWRzLmNpLm5vcm1hbCA8LSBmdW5jdGlvbihwYXJhbWV0ZXJzKSB7DQogIFIgPC0gNTAwMA0KICBzYW1wbGUubWVkcy5ub3JtYWwgPC0gTkENCiAgDQogIGZvciAoaSBpbiAxOlIpIHsNCiAgICBzYW1wbGUubWVkcy5ub3JtYWxbaV0gPC0gcGFyYW1ldGVycyAlPiUgZ2VuZXJhdGVfbm9ybWFsKCkgJT4lIG1lZGlhbg0KICB9DQogIHF1YW50aWxlKHNhbXBsZS5tZWRzLm5vcm1hbCwgYygwLjA1LCAwLjk1KSkNCn0NCg0KIyBib290c3RyYXAgcHJvY2VzcywgZ2FtbWEsIG1lZGlhbg0KYm9vdC5tZWRzLmNpLmdhbW1hIDwtIGZ1bmN0aW9uKHBhcmFtZXRlcnMpIHsNCiAgUiA8LSA1MDAwDQogIHNhbXBsZS5tZWRzLmdhbW1hIDwtIE5BDQogIA0KICBmb3IgKGkgaW4gMTo1MDAwKSB7DQogICAgc2FtcGxlLm1lZHMuZ2FtbWFbaV0gPC0gcGFyYW1ldGVycyAlPiUgZ2VuZXJhdGVfZ2FtbWEoKSAlPiUgbWVkaWFuDQogIH0NCiAgcXVhbnRpbGUoc2FtcGxlLm1lZHMuZ2FtbWEsIGMoMC4wNSwgMC45NSkpDQp9DQoNCiMgY2FwdHVyZSBtZWRpYW4sIG5vcm1hbA0KY2FwdHVyZV9tZWRpYW5fbm9ybWFsIDwtIGZ1bmN0aW9uKGNpKXsNCiAgMSooY2lbMV0gPCAwICYgMCA8IGNpWzJdKQ0KfQ0KDQojIGNhcHR1cmUgbWVkaWFuLCBnYW1tYQ0KY2FwdHVyZV9tZWRpYW5fZ2FtbWEgPC0gZnVuY3Rpb24oY2kpew0KICAxKihjaVsxXSA8IDQuMiAmIDQuMiA8IGNpWzJdKQ0KfQ0KDQpgYGANCg0KDQpgYGB7cn0NCiMgYm9vdHN0cmFwIHByb2Nlc3MsIG5vcm1hbCwgbWluDQpib290Lm1pbi5jaS5ub3JtYWwgPC0gZnVuY3Rpb24ocGFyYW1ldGVycykgew0KICBSIDwtIDUwMDANCiAgc2FtcGxlLm1pbi5ub3JtYWwgPC0gTkENCiAgDQogIGZvciAoaSBpbiAxOlIpIHsNCiAgICBzYW1wbGUubWluLm5vcm1hbFtpXSA8LSBwYXJhbWV0ZXJzICU+JSBnZW5lcmF0ZV9ub3JtYWwoKSAlPiUgbWluDQogIH0NCiAgcXVhbnRpbGUoc2FtcGxlLm1pbi5ub3JtYWwsIGMoMC4wNSwgMC45NSkpDQp9DQoNCiMgYm9vdHN0cmFwIHByb2Nlc3MsIGdhbW1hLCBtaW4NCmJvb3QubWluLmNpLmdhbW1hIDwtIGZ1bmN0aW9uKHBhcmFtZXRlcnMpIHsNCiAgUiA8LSA1MDAwDQogIHNhbXBsZS5taW4uZ2FtbWEgPC0gTkENCiAgDQogIGZvciAoaSBpbiAxOjUwMDApIHsNCiAgICBzYW1wbGUubWluLmdhbW1hW2ldIDwtIHBhcmFtZXRlcnMgJT4lIGdlbmVyYXRlX2dhbW1hKCkgJT4lIG1pbg0KICB9DQogIHF1YW50aWxlKHNhbXBsZS5taW4uZ2FtbWEsIGMoMC4wNSwgMC45NSkpDQp9DQoNCiMgY2FwdHVyZSBtaW4sIG5vcm1hbCAmIGdhbW1hDQpjYXB0dXJlX21pbiA8LSBmdW5jdGlvbihjaSwgZGF0YSl7DQogIDEqKGNpWzFdIDwgbWluKGRhdGEpICYgbWluKGRhdGEpIDwgY2lbMl0pDQp9DQoNCmBgYA0KDQoNCmBgYHtyIGluY2x1ZGU9RkFMU0V9DQpyZXF1aXJlKGRvUGFyYWxsZWwpDQpyZXF1aXJlKGZvcmVhY2gpDQoNCmNvcmVzXzJfdXNlIDwtIGRldGVjdENvcmVzKCkgLSAxDQpjbCA8LSBtYWtlQ2x1c3Rlcihjb3Jlc18yX3VzZSkNCmNsdXN0ZXJTZXRSTkdTdHJlYW0oY2wsIDIzNDQpDQpyZWdpc3RlckRvUGFyYWxsZWwoY2wpDQpgYGANCg0KDQojIFN0YXJ0IHdpdGggc2ltdWxhdGlvbg0KIyMgTWV0aG9kIG9mIG1vbWVudHMgd2l0aCBub3JtYWwsIG1lZGlhbg0KDQpgYGB7cn0NCmNhcHR1cmUxIDwtIGZvcmVhY2goDQogICAgaSA9IDE6MTAwDQogICwgLmNvbWJpbmUgPSBjDQogICwgLnBhY2thZ2VzID0gYygnZHBseXInKSAjIE5lZWQgdG8gaW5kaWNhdGUgd2hpY2ggcGFja2FnZXMNCikgJWRvcGFyJSB7DQogIHRydWUubm9ybWFsICU+JSBnZW5lcmF0ZV9ub3JtYWwgJT4lIGVzdC5tbGUubm9ybWFsICU+JSBib290Lm1lZHMuY2kubm9ybWFsICU+JSBjYXB0dXJlX21lZGlhbl9ub3JtYWwNCn0NCg0KbWVhbihjYXB0dXJlMSkNCmBgYA0KDQoNCiMjIE1ldGhvZCBvZiBtb21lbnRzIHdpdGggZ2FtbWEsIG1lZGlhbg0KYGBge3J9DQpjYXB0dXJlMiA8LSBmb3JlYWNoKA0KICAgIGkgPSAxOjEwMA0KICAsIC5jb21iaW5lID0gYw0KICAsIC5wYWNrYWdlcyA9IGMoJ2RwbHlyJykgIyBOZWVkIHRvIGluZGljYXRlIHdoaWNoIHBhY2thZ2VzDQopICVkb3BhciUgew0KICB0cnVlLmdhbW1hICU+JSBnZW5lcmF0ZV9nYW1tYSAlPiUgZXN0Lm1sZS5nYW1tYSAlPiUgYm9vdC5tZWRzLmNpLmdhbW1hICU+JSBjYXB0dXJlX21lZGlhbl9nYW1tYQ0KfQ0KDQptZWFuKGNhcHR1cmUyKQ0KDQpgYGANCg0KDQojIyBNZXRob2Qgb2YgbW9tZW50cyB3aXRoIA0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIjA5LW1ldGhvZC1jb21wYXJpc29uIg0KYXV0aG9yOiBZYXNpIFdhbmcNCmRhdGU6IDEwLzMwLzIwMTkNCm91dHB1dDogDQogIGh0bWxfbm90ZWJvb2s6IA0KICAgIGhpZ2hsaWdodDogdGFuZ28NCiAgICB0aGVtZTogY29zbW8NCi0tLQ0KDQpMYXN0IHRpbWUsIHdlJ3ZlIGRpc2N1c3NlZCBhYm91dCBjb25maWRlbmNlIGludGVydmFsIChDSSkgYW5kIGNvdmVyYWdlIHByb2JhYmlsaXR5LiBUaGlzIHRpbWUsIHdlIHdpbGwgZG8gbW9yZSBzaW11bGF0aW9ucyB3aXRoIGRpZmZlcmVudCBlc3RpbWF0aW9ucyBhbmQgY2FjdWxhdGUgdGhlaXIgY29ycmVzcG9uZGluZyBjb3ZlcmFnZSBwcm9iYWJpbGl0aWVzLg0KDQojIEludHJvZHVjdGlvbg0KKioqDQoNCiMjIE1ldGhvZCBvZiBNb21lbnQgZXN0aW1hdGlvbg0KDQoNCiMjIEtlcm5hbCBEZW5zaXR5IGVzdGltYXRpb24NCg0KIyMgQm9vdHN0cmFwIGVzdGltYXRpb24NCg0KYGBge3IgaW5jbHVkZT1GQUxTRX0NCmxpYnJhcnkodGlkeXZlcnNlKQ0KYGBgDQoNCg0KYGBge3J9DQpnZW5lcmF0ZV9kYXRhIDwtIGZ1bmN0aW9uKE4sIGRpc3QsIHNoLCBzYykgew0KICBpZihkaXN0ID09ICJub3JtIikgew0KICAgIHJldHVybihybm9ybShOKSArIDQpDQogIH0gZWxzZSBpZihkaXN0ID09ICJnYW1tYSIpIHsNCiAgICByZXR1cm4ocmdhbW1hKE4sIHNoYXBlID0gc2gsIHNjYWxlID0gc2MpKQ0KICB9DQp9DQpgYGANCg0KDQpgYGB7cn0NCmVzdGltYXRlLmNpIDwtIGZ1bmN0aW9uKGRhdGEsIG1vZCwgUiA9IDEwLCBwYXIuaW50LCBzbW9vID0gMC4zKSB7DQogIE4gPC0gbGVuZ3RoKGRhdGEpDQogIHN1bS5tZWFzdXJlIDwtIGdldChwYXIuaW50KQ0KDQogICMgaWYgKG1vZCA9PSAiTU1ub3JtIikgew0KICAjICAgIG1tLm1lYW4gPC0gbWVhbihkYXRhKQ0KICAjICAgIG1tLnNkIDwtIHNkKGRhdGEpDQogICMgICAgc2FtcC5kaXN0IDwtIE5BDQogICMgICAgDQogICMgICAgZm9yIChpIGluIDE6Uikgew0KICAjICAgICBzaW0uZGF0YSA8LSBybm9ybShsZW5ndGgoZGF0YSksIG1tLm1lYW4sIG1tLnNkKQ0KICAjICAgICBpZihwYXIuaW50ID09ICJtZWRpYW4iKSB7DQogICMgICAgICAgc2FtcC5kaXN0IDwtIG1lZGlhbihzaW0uZGF0YSkNCiAgIyAgICAgICB9IGVsc2UgaWYocGFyLmludCA9PSAibWluIikgew0KICAjICAgICAgICAgc2FtcC5kaXN0IDwtIG1pbihzaW0uZGF0YSkNCiAgIyAgICAgICB9DQogICMgICAgfQ0KDQogIGlmIChtb2Q9PSJNTW5vcm0iKXsgIyBhc3N1bWUgdGhlIGRhdGEgaXMgbm9ybWFsDQogICAgbW0ubWVhbiA8LSBtZWFuKGRhdGEpDQogICAgbW0uc2QgPC0gc2QoZGF0YSkNCiAgICBzaW0uZGF0YSA8LSBybm9ybShsZW5ndGgoZGF0YSksbW0ubWVhbixtbS5zZCkNCiAgICANCiAgICBzaW0uZGF0YSA8LSBhcnJheShybm9ybShOKlIsbW0ubWVhbixtbS5zZCksZGltPWMoTixSKSkNCiAgICBzYW1wLmRpc3QgPC0gYXBwbHkoc2ltLmRhdGEsMixzdW0ubWVhc3VyZSkNCg0KICB9IGVsc2UgaWYobW9kID09ICJNTWdhbW1hIikgew0KICAgIG1tLnNoYXBlIDwtIG1lYW4oZGF0YSleMi92YXIoZGF0YSkNCiAgICBtbS5zY2FsZSA8LSB2YXIoZGF0YSkvbWVhbihkYXRhKQ0KICAgIA0KICAgIHNpbS5kYXRhIDwtIGFycmF5KHJnYW1tYShsZW5ndGgoZGF0YSkqUiwgc2hhcGUgPSBtbS5zaGFwZSwgc2NhbGUgPSBtbS5zY2FsZSksIGRpbSA9IGMoTiwgUikpDQogICAgc2FtcC5kaXN0IDwtIGFwcGx5KHNpbS5kYXRhLCAyLCBGVU4gPSBzdW0ubWVhc3VyZSkNCiAgICANCiAgfSBlbHNlIGlmKG1vZCA9PSAiS0RFIikgeyAjIE9jdC45dGggc2xpZGUNCiAgICBlY2Rmc3RhciA8LSBmdW5jdGlvbih0LCBkYXRhLCBzbW9vdGggPSBzbW9vKSB7DQogICAgICBvdXRlcih0LCBkYXRhLCBmdW5jdGlvbihhLCBiKSB7cG5vcm0oYSwgYiwgc21vb3RoKX0pICU+JSByb3dNZWFucw0KICAgICAgfQ0KICAgIA0KICAgIHRibCA8LSBkYXRhLmZyYW1lKA0KICAgICAgeCA9IHNlcShtaW4oZGF0YSkgLSAyKnNkKGRhdGEpLCBtYXgoZGF0YSkgKyAyKnNkKGRhdGEpLCBieSA9IDAuMDEpDQogICAgKQ0KICAgIHRibCRwIDwtIGVjZGZzdGFyKHRibCR4LCBkYXRhLCBzbW9vKQ0KICAgIHRibCA8LSB0YmxbIWR1cGxpY2F0ZWQodGJsJHApLF0NCiAgICANCiAgICBxa2RlIDwtIGZ1bmN0aW9uKHBzLCB0Ymwpew0KICAgICAgcm93cyA8LSBjdXQocHMsIHRibCRwLCBsYWJlbHMgPSBGQUxTRSkNCiAgICAgIHRibFtyb3dzLCAieCJdDQogICAgICB9DQogICAgDQogICAgVSA8LSBydW5pZihOICogUikNCiAgICBzaW0uZGF0YSA8LSBhcnJheShxa2RlKFUsIHRibCksIGRpbSA9IGMoTiwgUikpDQogICAgc2FtcC5kaXN0IDwtIGFwcGx5KHNpbS5kYXRhLCAyLCBGVU4gPSBzdW0ubWVhc3VyZSkNCg0KICB9IGVsc2UgaWYobW9kID09ICJCb290Iikgew0KICAgIHNpbS5kYXRhIDwtIGFycmF5KHNhbXBsZShkYXRhLCBOICogUiwgcmVwbGFjZSA9IFRSVUUpLCBkaW0gPSBjKE4sIFIpKQ0KICAgIHNhbXAuZGlzdCA8LSBhcHBseShzaW0uZGF0YSwgMiwgRlVOID0gc3VtLm1lYXN1cmUpDQogICAgDQogIH0NCiAgcmV0dXJuKHF1YW50aWxlKHNhbXAuZGlzdCwgYygwLjA1LCAwLjk1KSkpDQp9DQoNCg0KY2FwdHVyZV9wYXIgPC0gZnVuY3Rpb24oY2ksIHRydWUucGFyKSB7DQogIDEgKiAoY2lbMV0gPCB0cnVlLnBhciAmIHRydWUucGFyIDwgY2lbMl0pDQp9DQoNCmBgYA0KDQoNCmBgYHtyfQ0KIyBPbmUgcmVwbGljYXRlDQoNCk4gPC0gMjAxDQpzaGFwZS5zZXQgPC0gMS40DQpzY2FsZS5zZXQgPC0gMw0KDQp0cnVlLm5vcm0ubWVkIDwtIHFub3JtKDAuNSkNCnRydWUubm9ybS5taW4gPC0gbWVhbihhcHBseShhcnJheShybm9ybShOKjEwMDAwKSwgZGltID0gYyhOLCAxMDAwMCkpLCAyLCBtaW4pKQ0KDQp0cnVlLmdhbW1hLm1lZCA8LSBxZ2FtbWEoMC41LCBzaGFwZSA9IHNoYXBlLnNldCwgc2NhbGUgPSBzY2FsZS5zZXQpIA0KdHJ1ZS5nYW1tYS5taW4gPC0gbWVhbihhcHBseShhcnJheShyZ2FtbWEoTioxMDAwMCwgc2hhcGUgPSBzaGFwZS5zZXQsIHNjYWxlID0gc2NhbGUuc2V0KSwgZGltID0gYyhOLCAxMDAwMCkpLCAyLCBtaW4pKQ0KICANCmRpc3QxIDwtICJub3JtIg0KbW9kZWwxIDwtICJNTW5vcm0iDQpwYXIuaW50MSA8LSAibWVkaWFuIg0KDQpjb3ZlciA8LSBOQQ0KZm9yIChzaW1zIGluIDE6MTAwKSB7DQogIGNvdmVyW3NpbXNdIDwtIGdlbmVyYXRlX2RhdGEoTiwgZGlzdDEpICU+JSBlc3RpbWF0ZS5jaShtb2QgPSBtb2RlbDEsIHBhci5pbnQgPSBwYXIuaW50MSwgUiA9IDEwMDApICU+JSBjYXB0dXJlX3Bhcih0cnVlLnBhciA9IHRydWUubm9ybS5tZWQgKyA0KQ0KDQp9DQoNCm1lYW4oY292ZXIpDQpgYGANCg0KDQoNCg0KYGBge3J9DQpzaW1zZXR0aW5ncyA8LSBleHBhbmQuZ3JpZChkaXN0ID0gYygibm9ybSIsICJnYW1tYSIpLCBtb2RlbCA9IGMoIk1Nbm9ybSIsICJNTWdhbW1hIiwgIktERSIsICJCb290IiksIHBhci5pbnQgPSBjKCJtZWRpYW4iLCAibWluIiksIGNvdi5wcm9iID1OQSwgc3RyaW5nc0FzRmFjdG9ycyA9IEZBTFNFLCBLRUVQLk9VVC5BVFRSUyA9IEZBTFNFKQ0KDQoNCmZvciAoayBpbiAxOm5yb3coc2ltc2V0dGluZ3MpKXsNCiAgZGlzdDEgPC0gc2ltc2V0dGluZ3NbaywgMV0NCiAgbW9kZWwxIDwtIHNpbXNldHRpbmdzW2ssIDJdDQogIHBhci5pbnQxIDwtIHNpbXNldHRpbmdzW2ssIDNdDQogIA0KICBpZiAoZGlzdDEgPT0gIm5vcm0iICYgcGFyLmludDEgPT0gIm1lZGlhbiIpIHsNCiAgICB0cnVlLnBhcjEgPSB0cnVlLm5vcm0ubWVkICsgNA0KICB9IGVsc2UgaWYgKGRpc3QxID09ICJnYW1tYSIgJiBwYXIuaW50MSA9PSAibWVkaWFuIikgew0KICAgIHRydWUucGFyMSA9IHRydWUuZ2FtbWEubWVkDQogIH0gZWxzZSBpZiAoZGlzdDEgPT0gIm5vcm0iICYgcGFyLmludDEgPT0gIm1pbiIpIHsNCiAgICB0cnVlLnBhcjEgPSB0cnVlLm5vcm0ubWluICsgNA0KICB9IGVsc2UgaWYgKGRpc3QxID09ICJnYW1tYSIgJiBwYXIuaW50MSA9PSAibWluIikgew0KICAgIHRydWUucGFyMSA9IHRydWUuZ2FtbWEubWluDQogIH0NCiAgY292ZXIgPC0gTkENCiAgDQogIGZvciAoc2ltcyBpbiAxOjEwMCkgew0KICAgIGNvdmVyW3NpbXNdIDwtIGdlbmVyYXRlX2RhdGEoTiwgZGlzdDEsIHNoID0gc2hhcGUuc2V0LCBzYyA9IHNjYWxlLnNldCkgJT4lIGVzdGltYXRlLmNpKG1vZCA9IG1vZGVsMSwgcGFyLmludCA9IHBhci5pbnQxLCBSID0gMTAwMCkgJT4lIGNhcHR1cmVfcGFyKHRydWUucGFyID0gdHJ1ZS5wYXIxKQ0KICAgIHNpbXNldHRpbmdzW2sgLDRdIDwtIG1lYW4oY292ZXIpDQoNCiAgfQ0KfQ0KYGBgDQoNCg0KYGBge3J9DQpzaW1zZXR0aW5ncw0KYGBgDQoNCg0KDQojIyBNZXRob2Qgb2YgbW9tZW50cyB3aXRoIA0KDQoNCiMgQ29uY2x1c2lvbg0KDQpNZXRob2Qgb2YgbW9tZW50cyBvZnRlbiBoYXMgYmVzdCBzaW11bGF0aW5nIGFjY3VyYWN5IHRoYW4gYm9vdHN0cmFwIGlmIHRoZSBkaXN0cmlidXRpb24gaXMgYXNzdW1lIGlzIHJpZ2h0LiBJIHRoaW5rIGl0IGlzIGJlY2F1c2UgbWV0aG9kIG9mIG1vbWVudHMgaXMgYW4gZXN0aW1hdGlvbiBtZXRob2Qgd2l0aCBwYXJhbWV0ZXJzLiBIb3dldmVyLCB3aGVuIHRoZSB0cnVlIGRpc3RyaWJ1dGlvbiBpcyBnYW1tYSBkaXN0cmlidXRpb24sIGlmIGZhaWxzIHRvIGNhcHR1cmUgdGhlIG1pbmltdW0gdmFsdWUgb2Ygc2FtcGxlIGRpc3RyaWJ1dGlvbi4NCg0KQm9vdHN0cmFwIGVzdGltYXRlcyB3aXRoIG1vcmUgYWNjdXJhY3kgd2hlbiB0aGUgdHJ1ZSBkaXN0cmlidXRpb24gaXMgc3RhbmRhcmQgbm9ybWwsIHdoZXJlYXMgaXRzIGNvdmVyYWdlIHByb2JhYmlsaXR5IGJlY29tZXMgcmVhbGx5IGxvdyB3aGVuIHRoZSB0cnVlIGRpc3RyaWJ1dGlvbiBpcyBnYW1tIGRpc3RyaWJ1dGlvbi4NCg0KQ29tcGFyZWQgdHdvIHBhcmFtZXRlcnMsIGl0J3MgbXVjaCBtb3JlIGVhc2llciBmb3IgZXN0aW1hdGlvbiBtZXRob2QgdG8gY2F0aGNoIG1lZGlhbiB2YWx1ZSBvZiB0cnVlIGRpc3RyaWJ1dGlvbiB0aGFuIG1pbmltdW0gdmFsdWUgb2YgZWFjaCBzYW1wbGUgaW4gc3RhbmRhcmQgbm9ybWFsIGRpc3RyaWJ1dGlvbi4gSXQgY291bGQgYmUgcmVsYXRlZCBteSBvbGQgYmxvZ3MsIHdoaWNoIHJldmVhbHMgdGhlIG1lZGlhbiB2YWx1ZSBvZiBzYW1wbGVzIGZyb20gbm9ybWFsIGRpc3RyaWJ1dGlvbiBpcyBtdWNoIGxlc3Mgdm9sYXRpbGUgdGhhbiBvdGhlciB2YWx1ZXMuIFRoZXJlZm9yZSwgdGhlIGNvdmVyYWdlIHByb2JhYmlsaXR5IGlzIGhpZ2guDQoNCkFzIEkgZmluYWxseSBzdWNjZXNzZWQgaW4gdXNpbmcga2VybmFsIGRlbnNpdHkgZXN0aW1hdGlvbiB0byBzaW11bGF0ZSBkaXN0cmlidXRpb24sIEkgZG9uJ3QgdGhpbmsgaXQgaXMgYSBnb29kIHdheSB0byBlc3RpbWF0ZSBjb3ZlcmFnZSBwcm9iYWJpbGl0eS4gQXMgaXQgaXMgYWltZWQgdG8gcGxvdCBhIHNtb290aCBncmFwaCBvZiBzYW1wbGUgZGlzdHJpYnV0aW9uIGFuZCBpdCBpcyBhIG1ldGhvZCBvZiBub24tcGFyYW1ldHJpYyBlc3RpbWF0aW9uLiBUaGUgcmVzdWx0IGlzIHRoZSBzYW1lIGFzIEkgZXhwZWN0ZWQsIGtlcm5hbCBkZW5zaXR5IGVzdGltYXRpb24gaGFzIHJlbGF0aXZlbHkgbG93IGFjY3VyYWN5IGluIGdhbW1hIGRpc3RyaWJ1dGlvbi4gSXQgcGVyZm9ybXMgb25seSBnb29kIHdoZW4gZXN0aW1hdGluZyBzdGFuZGFyZCBub3JtYWwgZGlzdHJpYnV0aW9uLg0K</div>
 
 
 

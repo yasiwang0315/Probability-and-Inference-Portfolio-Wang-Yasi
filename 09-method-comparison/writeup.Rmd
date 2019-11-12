@@ -8,158 +8,177 @@ output:
     theme: cosmo
 ---
 
-***Not complete*
+Last time, we've discussed about confidence interval (CI) and coverage probability. This time, we will do more simulations with different estimations and caculate their corresponding coverage probabilities.
+
+# Introduction
+***
+
+## Method of Moment estimation
+
+
+## Kernal Density estimation
+
+## Bootstrap estimation
 
 ```{r include=FALSE}
 library(tidyverse)
 ```
 
-# Functions needed
 
 ```{r}
-# parameters for standard normal distribution and defined gamma distribution
-
-true.normal <- c(201 , 0, 1)
-true.gamma <- c(201, 1.4, 3) 
-
-
-# generate data, normal distribution
-generate_normal <- function(parameters){ 
-  rnorm(parameters[1], mean = parameters[2], sd = parameters[3]) 
-}
-
-# generate data, gamma distribution
-generate_gamma <- function(parameters){
-  rgamma(parameters[1], shape = parameters[2], scale = parameters[3])
-}
-
-# method of moments with normal
-est.mle.normal <- function(data) {
-  mle.mean <- mean(data)
-  mle.sd <- sqrt(((length(data) - 1)/length(data))*var(data))
-  return (c(length(data), mle.mean, mle.sd))
-}
-
-# method of moments with gamma
-est.mle.gamma <- function(data){
-  xbar = mean(data)
-  s2 = var(data)
-  shape_hat <- xbar^2/s2
-  scale_hat <- s2/xbar
-  return (c(length(data), shape_hat, scale_hat))
-}
-
-```
-
-
-```{r}
-# bootstrap process, normal, median
-boot.meds.ci.normal <- function(parameters) {
-  R <- 5000
-  sample.meds.normal <- NA
-  
-  for (i in 1:R) {
-    sample.meds.normal[i] <- parameters %>% generate_normal() %>% median
+generate_data <- function(N, dist, sh, sc) {
+  if(dist == "norm") {
+    return(rnorm(N) + 4)
+  } else if(dist == "gamma") {
+    return(rgamma(N, shape = sh, scale = sc))
   }
-  quantile(sample.meds.normal, c(0.05, 0.95))
 }
+```
 
-# bootstrap process, gamma, median
-boot.meds.ci.gamma <- function(parameters) {
-  R <- 5000
-  sample.meds.gamma <- NA
-  
-  for (i in 1:5000) {
-    sample.meds.gamma[i] <- parameters %>% generate_gamma() %>% median
+
+```{r}
+estimate.ci <- function(data, mod, R = 10, par.int, smoo = 0.3) {
+  N <- length(data)
+  sum.measure <- get(par.int)
+
+  # if (mod == "MMnorm") {
+  #    mm.mean <- mean(data)
+  #    mm.sd <- sd(data)
+  #    samp.dist <- NA
+  #    
+  #    for (i in 1:R) {
+  #     sim.data <- rnorm(length(data), mm.mean, mm.sd)
+  #     if(par.int == "median") {
+  #       samp.dist <- median(sim.data)
+  #       } else if(par.int == "min") {
+  #         samp.dist <- min(sim.data)
+  #       }
+  #    }
+
+  if (mod=="MMnorm"){ # assume the data is normal
+    mm.mean <- mean(data)
+    mm.sd <- sd(data)
+    sim.data <- rnorm(length(data),mm.mean,mm.sd)
+    
+    sim.data <- array(rnorm(N*R,mm.mean,mm.sd),dim=c(N,R))
+    samp.dist <- apply(sim.data,2,sum.measure)
+
+  } else if(mod == "MMgamma") {
+    mm.shape <- mean(data)^2/var(data)
+    mm.scale <- var(data)/mean(data)
+    
+    sim.data <- array(rgamma(length(data)*R, shape = mm.shape, scale = mm.scale), dim = c(N, R))
+    samp.dist <- apply(sim.data, 2, FUN = sum.measure)
+    
+  } else if(mod == "KDE") { # Oct.9th slide
+    ecdfstar <- function(t, data, smooth = smoo) {
+      outer(t, data, function(a, b) {pnorm(a, b, smooth)}) %>% rowMeans
+      }
+    
+    tbl <- data.frame(
+      x = seq(min(data) - 2*sd(data), max(data) + 2*sd(data), by = 0.01)
+    )
+    tbl$p <- ecdfstar(tbl$x, data, smoo)
+    tbl <- tbl[!duplicated(tbl$p),]
+    
+    qkde <- function(ps, tbl){
+      rows <- cut(ps, tbl$p, labels = FALSE)
+      tbl[rows, "x"]
+      }
+    
+    U <- runif(N * R)
+    sim.data <- array(qkde(U, tbl), dim = c(N, R))
+    samp.dist <- apply(sim.data, 2, FUN = sum.measure)
+
+  } else if(mod == "Boot") {
+    sim.data <- array(sample(data, N * R, replace = TRUE), dim = c(N, R))
+    samp.dist <- apply(sim.data, 2, FUN = sum.measure)
+    
   }
-  quantile(sample.meds.gamma, c(0.05, 0.95))
+  return(quantile(samp.dist, c(0.05, 0.95)))
 }
 
-# capture median, normal
-capture_median_normal <- function(ci){
-  1*(ci[1] < 0 & 0 < ci[2])
-}
 
-# capture median, gamma
-capture_median_gamma <- function(ci){
-  1*(ci[1] < 4.2 & 4.2 < ci[2])
+capture_par <- function(ci, true.par) {
+  1 * (ci[1] < true.par & true.par < ci[2])
 }
 
 ```
 
 
 ```{r}
-# bootstrap process, normal, min
-boot.min.ci.normal <- function(parameters) {
-  R <- 5000
-  sample.min.normal <- NA
+# One replicate
+
+N <- 201
+shape.set <- 1.4
+scale.set <- 3
+
+true.norm.med <- qnorm(0.5)
+true.norm.min <- mean(apply(array(rnorm(N*10000), dim = c(N, 10000)), 2, min))
+
+true.gamma.med <- qgamma(0.5, shape = shape.set, scale = scale.set) 
+true.gamma.min <- mean(apply(array(rgamma(N*10000, shape = shape.set, scale = scale.set), dim = c(N, 10000)), 2, min))
   
-  for (i in 1:R) {
-    sample.min.normal[i] <- parameters %>% generate_normal() %>% min
-  }
-  quantile(sample.min.normal, c(0.05, 0.95))
+dist1 <- "norm"
+model1 <- "MMnorm"
+par.int1 <- "median"
+
+cover <- NA
+for (sims in 1:100) {
+  cover[sims] <- generate_data(N, dist1) %>% estimate.ci(mod = model1, par.int = par.int1, R = 1000) %>% capture_par(true.par = true.norm.med + 4)
+
 }
 
-# bootstrap process, gamma, min
-boot.min.ci.gamma <- function(parameters) {
-  R <- 5000
-  sample.min.gamma <- NA
-  
-  for (i in 1:5000) {
-    sample.min.gamma[i] <- parameters %>% generate_gamma() %>% min
-  }
-  quantile(sample.min.gamma, c(0.05, 0.95))
-}
-
-# capture min, normal & gamma
-capture_min <- function(ci, data){
-  1*(ci[1] < min(data) & min(data) < ci[2])
-}
-
+mean(cover)
 ```
 
 
-```{r include=FALSE}
-require(doParallel)
-require(foreach)
 
-cores_2_use <- detectCores() - 1
-cl <- makeCluster(cores_2_use)
-clusterSetRNGStream(cl, 2344)
-registerDoParallel(cl)
-```
-
-
-# Start with simulation
-## Method of moments with normal, median
 
 ```{r}
-capture1 <- foreach(
-    i = 1:100
-  , .combine = c
-  , .packages = c('dplyr') # Need to indicate which packages
-) %dopar% {
-  true.normal %>% generate_normal %>% est.mle.normal %>% boot.meds.ci.normal %>% capture_median_normal
-}
+simsettings <- expand.grid(dist = c("norm", "gamma"), model = c("MMnorm", "MMgamma", "KDE", "Boot"), par.int = c("median", "min"), cov.prob =NA, stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)
 
-mean(capture1)
+
+for (k in 1:nrow(simsettings)){
+  dist1 <- simsettings[k, 1]
+  model1 <- simsettings[k, 2]
+  par.int1 <- simsettings[k, 3]
+  
+  if (dist1 == "norm" & par.int1 == "median") {
+    true.par1 = true.norm.med + 4
+  } else if (dist1 == "gamma" & par.int1 == "median") {
+    true.par1 = true.gamma.med
+  } else if (dist1 == "norm" & par.int1 == "min") {
+    true.par1 = true.norm.min + 4
+  } else if (dist1 == "gamma" & par.int1 == "min") {
+    true.par1 = true.gamma.min
+  }
+  cover <- NA
+  
+  for (sims in 1:100) {
+    cover[sims] <- generate_data(N, dist1, sh = shape.set, sc = scale.set) %>% estimate.ci(mod = model1, par.int = par.int1, R = 1000) %>% capture_par(true.par = true.par1)
+    simsettings[k ,4] <- mean(cover)
+
+  }
+}
 ```
 
 
-## Method of moments with gamma, median
 ```{r}
-capture2 <- foreach(
-    i = 1:100
-  , .combine = c
-  , .packages = c('dplyr') # Need to indicate which packages
-) %dopar% {
-  true.gamma %>% generate_gamma %>% est.mle.gamma %>% boot.meds.ci.gamma %>% capture_median_gamma
-}
-
-mean(capture2)
-
+simsettings
 ```
+
 
 
 ## Method of moments with 
 
+
+# Conclusion
+
+Method of moments often has best simulating accuracy than bootstrap if the distribution is assume is right. I think it is because method of moments is an estimation method with parameters. However, when the true distribution is gamma distribution, if fails to capture the minimum value of sample distribution.
+
+Bootstrap estimates with more accuracy when the true distribution is standard norml, whereas its coverage probability becomes really low when the true distribution is gamm distribution.
+
+Compared two parameters, it's much more easier for estimation method to cathch median value of true distribution than minimum value of each sample in standard normal distribution. It could be related my old blogs, which reveals the median value of samples from normal distribution is much less volatile than other values. Therefore, the coverage probability is high.
+
+As I finally successed in using kernal density estimation to simulate distribution, I don't think it is a good way to estimate coverage probability. As it is aimed to plot a smooth graph of sample distribution and it is a method of non-parametric estimation. The result is the same as I expected, kernal density estimation has relatively low accuracy in gamma distribution. It performs only good when estimating standard normal distribution.

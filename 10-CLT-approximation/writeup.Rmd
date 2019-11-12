@@ -136,16 +136,14 @@ According to the simulation, we can conclude that:
 ***
 When the mean and variance parameters are estimated from data, instead of using the population parameters, let's see what will happen.
 
-```{r eval=FALSE, fig.height=12, fig.width=11, include=FALSE}
-require(tidyverse)
-
+```{r fig.height=12, fig.width=11}
 par(mfrow = c(4, 4))
 
 for (i in seq(1, 4)){
   for (j in seq(1, 4)){
     delta <- slant[i]/(sqrt(1 + slant[i]^2))
     
-    Y <- rsn(R, xi = location, omega = scale, alpha = slant[i])
+    Y <- rsn(N[j], xi = location, omega = scale, alpha = slant[i])
     
     est.mean = mean(Y)
     est.sd <- sqrt(sum((Y-est.mean)^2/(length(Y)-1)))
@@ -165,3 +163,4 @@ for (i in seq(1, 4)){
 
 ```
 
+We can see that the sampling distributions of the mean using two methods are more likely from the same population. When N = 40, slant = 20, the points match the best.
