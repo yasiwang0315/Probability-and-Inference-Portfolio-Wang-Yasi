@@ -94,10 +94,13 @@ abline(0, 1)
 ## ALl together
 Now we combined all the conditions together. Let's see the results. 
 
-```{r fig.width=11, fig.height=12}
-par(mfrow = c(4, 4))
+
+```{r fig.width=11, fig.height=10}
+par(mfrow = c(4, 5))
 
 for (i in seq(1, 4)){
+  curve(dsn(x, xi = location, omega = scale, alpha = slant[i]), xlim = c(-5, 6), ylim = c(), main = "Distribution", ylab = paste("slant = ", slant[i]), xlab = "")
+
   for (j in seq(1, 4)){
     delta <- slant[i]/(sqrt(1 + slant[i]^2))
     pop_mean <- location + scale*delta*(sqrt(2/pi))
@@ -109,12 +112,13 @@ for (i in seq(1, 4)){
     sample_dist_sim <- apply(random.skew, 1, mean)
 
     qqplot(sample_dist_sim, sample_dist_clt, asp = 1, xlab  = "Simulation Quantiles",
-           ylab = "CLT Quantiles", main=paste("N = ", N[j], " and Slant = ", slant[i]))
+           ylab = "CLT Quantiles", main=paste("N = ", N[j]))
     abline(0, 1)
 
   }
 }
 ```
+
 Looking at the graphs, we can find that:
 
 - When slant = 0, the mean of the sampling distribution comparatively have the greater range, from -1.5 to 2.
@@ -137,12 +141,11 @@ According to the simulation, we can conclude that:
 When the mean and variance parameters are estimated from data, instead of using the population parameters, let's see what will happen.
 
 ```{r fig.height=12, fig.width=11}
-par(mfrow = c(4, 4))
+par(mfrow = c(4, 5))
 
 for (i in seq(1, 4)){
+  curve(dsn(x, xi = location, omega = scale, alpha = slant[i]), xlim = c(-5, 6), ylim = c(), main = "Distribution", ylab = paste("slant = ", slant[i]), xlab = "")
   for (j in seq(1, 4)){
-    delta <- slant[i]/(sqrt(1 + slant[i]^2))
-    
     Y <- rsn(N[j], xi = location, omega = scale, alpha = slant[i])
     
     est.mean = mean(Y)
@@ -155,7 +158,7 @@ for (i in seq(1, 4)){
     sample_dist_sim <- apply(random.skew, 1, mean)
 
     qqplot(sample_dist_sim, sample_dist_clt, asp = 1, xlab  = "Simulation Quantiles",
-           ylab = "CLT Quantiles", main=paste("N = ", N[j], " and Slant = ", slant[i]))
+           ylab = "CLT Quantiles", main=paste("N = ", N[j]))
     abline(0, 1)
 
   }
@@ -163,4 +166,4 @@ for (i in seq(1, 4)){
 
 ```
 
-We can see that the sampling distributions of the mean using two methods are more likely from the same population. When N = 40, slant = 20, the points match the best.
+We ran the code multiple times, finding that the results were very unstable. This is because that the mean and variance depend on the sample distribution very much. Generally, the larger sample size, we can get more stable results.
