@@ -166,4 +166,4 @@ for (i in seq(1, 4)){
 
 ```
 
-We ran the code multiple times, finding that the results were very unstable. This is because that the mean and variance depend on the sample distribution very much. Generally, the larger sample size, we can get more stable results.
+We ran the code multiple times, finding that the results were very unstable. This is because that the mean and variance depend on the sample distribution very much. Central limit theorem estimates less precisely when capturing mean and standard deviation from sampling distributions. Generally, the larger sample size we have, the more precise and stable result we will get.
