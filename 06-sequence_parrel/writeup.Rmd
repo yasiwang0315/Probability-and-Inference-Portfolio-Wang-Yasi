@@ -62,7 +62,7 @@ curve(
 
 ```
 
-As the X<sub>100</sub> increases, the probability increases and gets stable at 1 when X<sub>100</sub> equals to 0.4.
+The probability increases and becomes equivalent to 1 when X<sub>100</sub> is greater than or equal to 0.4.
 
 ## Quantile for the median
 
@@ -321,7 +321,8 @@ curve(
 )
 ```
 
-As for normal distribution, I plotted the probability and density functions for the 1<sub>st</sub> ordered value. We can see that the density function is not symmetric, but still goes increase and then decrease. As for probability, it increases and gets stable at 1 when X<sub>1</sub> equals to -2.
+As for normal distribution, I plotted the probability and density functions for the 1<sub>st</sub> ordered value. We can see that the density function is not symmetric, but still goes increase and then decrease. As for probability, it increases and becomes equivalent to 1 when X<sub>1</sub> is greater than or equal to -2.
+
 
 As for exponential distribution, as X<sub>1</sub> increases from 0, the density decreases all the time, while the probability increases.
 
