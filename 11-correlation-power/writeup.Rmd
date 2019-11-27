@@ -50,7 +50,7 @@ We first demonstrate the power calculation for a single combination of N = 50 an
 
 We produce the sample from the multivariate normal distribution with: &mu; = 0, &sigma; =\begin{bmatrix} 1&0.8 \\0.8&1 \end{bmatrix}
 
-The result shows that the power = 0.0516.
+The result shows that the power is very low, which qeuals to 0.0516.
 
 ```{r}
 set.seed(20394)
