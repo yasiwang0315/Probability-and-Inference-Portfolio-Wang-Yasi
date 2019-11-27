@@ -1,0 +1,170 @@
+---
+title: "11-correlation-power"
+author: Yasi Wang
+date: 11/25/2019
+output: 
+  html_notebook: 
+    highlight: tango
+    theme: cosmo
+---
+
+# Introduction
+***
+
+### Power
+Power is the probability that the test rejects the null hypothesis (H<sub>0</sub>) when a specific alternative hypothesis (H<sub>1</sub>) is true. In other word, it is the the ability of a test to detect a specific effect, if that specific effect actually exists.
+
+### Type I & II error
+In statistical hypothesis testing,
+
+- **Type I** error is the rejection of a null hypothesis when it is true. It is also called "false positive". 
+- **Type II** error is the acceptance of a null hypothesis when it is false. It is also called "false negative".
+
+Much of statistical theory revolves around the minimization of one or both of these errors. The table below demonstrated the relationship among error types, significance level (&alpha;) and power (1 - &beta;).
+ 
+|                 |                       |      Truth     |                |
+|:---------------:|:---------------------:|:---------------------:|:---------------------:|
+|                 |                       | **H<sub>0</sub> True**|**H<sub>0</sub> False**|
+|**Your findings**| **H<sub>0</sub> True**| Correct (1 - &alpha;) | Type II error (&beta;)|
+|                 |**H<sub>0</sub> False**| Type I error (&alpha;)|  Correct (1 - &beta;) |
+
+
+### Situation
+We assume that one measurement, call it A, may reflect the severity of disease but is difficult or costly to collect. Another measurement, call it B, may be easier to collect and potentially related to measurement A. If there is strong association between A and B, a cost effective strategy for diagnosis may be to collect measurement B instead of A.
+
+In this blog, I will perform a power and sample size calculation to show the correlation between two measurements and thus decide whether measurement B can replace measurement A for research.
+
+- H<sub>0</sub>: The correlation of A and B is 0.8.
+- H<sub>1</sub>: The correlation of A and B is higher than 0.8.
+
+# Simulation
+***
+### power calculation
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+
+We first demonstrate the power calculation for a single combination of N = 50 and population correlation &rho; = 0.8. 
+
+We produce the sample from the multivariate normal distribution with: &mu; = 0, &sigma; =\begin{bmatrix} 1&0.8 \\0.8&1 \end{bmatrix}
+
+The result shows that the power = 0.0516.
+
+```{r}
+set.seed(20394)
+suppressPackageStartupMessages(require(mvtnorm))
+N <- 50
+rho <- .8
+null_correlation <- 0.8
+R <- 5000
+
+sigma <- array(c(1,rho,rho,1), c(2,2))
+mu <- c(0,0)
+
+detect <- rep(NA, R)
+for(i in 1:R){
+  data <- rmvnorm(N, mean = mu, sigma = sigma)
+  results <- cor.test(x = data[,1], y = data[,2], alternative = "greater")
+  detect[i] <- results$conf.int[1] > null_correlation
+}
+
+power <- mean(detect)
+power
+
+```
+
+### Multiple population correlation
+
+In this step, we set the population correlation from 0.8 to 0.98 to see the effect of correlation population on power.
+
+The plot below shows that the power increases and becomes equivalent to 1 when &rho; is greater and closes to 1.
+```{r}
+rho <- seq(0.8, 0.98, 0.02)
+
+power <- NA
+
+for(i in seq_along(rho)){
+  detect <- NA
+  sigma <- array(c(1,rho[i],rho[i],1), c(2,2))
+
+  for (j in 1:R){
+    mu <- c(0,0)
+    data <- rmvnorm(N, mean = mu, sigma = sigma)
+    
+    results <- cor.test(x = data[,1], y = data[,2], alternative = "greater")
+    detect[j] <- results$conf.int[1] > null_correlation
+  }
+  power[i] <- mean(detect)
+}
+
+plot(rho, power, type = 'l', main = "Relationship between Population Correlation and Power", lwd = 2, col = "orange", xlab = "population correlation", ylab = "power")
+
+```
+
+### All together (multiple N)
+
+In this step, we set the sample size at 25, 50, 75, and 100. Let's see the result.
+
+```{r include=FALSE}
+ss1 <- expand.grid(N = c(25, 50, 75, 100),
+                   cor = seq(0.8, 0.98, 0.02),
+                   power = NA_real_)
+```
+
+
+```{r include=FALSE}
+one_calc <- function(N, cor) {
+  null_correlation <- 0.8
+  R <- 5000
+  sigma <- array(c(1,cor,cor,1), c(2,2))
+  mu <- c(0,0)
+  
+  detect <- rep(NA, R)
+  for(i in 1:R){
+    data <- rmvnorm(N, mean = mu, sigma = sigma)
+    results <- cor.test(x = data[,1], y = data[,2], alternative = "greater")
+    detect[i] <- results$conf.int[1] > null_correlation
+  }
+  power <- mean(detect)
+}
+
+for (i in 1:nrow(ss1)) {
+  ss1[i, "power"] <- one_calc(ss1[i, "N"], ss1[i, "cor"])
+}
+
+```
+
+
+
+```{r echo=FALSE}
+palette(RColorBrewer::brewer.pal(4, "Set1"))
+
+plot.new()
+plot.window(xlim = c(0.8, 1), ylim = range(ss1$power))
+title(main = "Power with N (25, 50, 75, 100)", xlab = "population correlation", ylab = "power")
+l1 <- ss1 %>% split(.$N)
+
+for (j in seq_along(l1)) {
+  lines(l1[[j]]$cor, l1[[j]]$power, type = "b", pch = 16, col = j, lwd = 3)
+  text(0.88, l1[[j]]$power[5], l1[[j]]$N[1], pos = 2)
+}
+
+axis(1, seq(0.8, 0.98, 0.02))
+axis(2)
+box()
+
+# RColorBrewer::display.brewer.all(n = 4)
+# RColorBrewer::brewer.pal(4, "Set1")
+
+```
+
+The graph shows that:
+
+- in all sample size, the power will increase and become equivalent to 1 when &rho; is greater and closes to 1. 
+- if the population correlation is the same, the larger the N, the higher the power will be.
+
+# Conclusion
+*** 
+We can conclude that sample size and population correlation can all effect the power.
