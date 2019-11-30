@@ -2,10 +2,10 @@
 Data science 5620: Probability
 
 Project 11:
-[relative HTML file](11-/writeup.nb.html)
+[relative HTML file](11-correlation-power/writeup.nb.html)
 
 Project 10:
-[relative HTML file](10-coverage-probability/writeup.nb.html)
+[relative HTML file](10-CLT-approximation/writeup.nb.html)
 
 Project 9:
 [relative HTML file](09-method-comparison/writeup.nb.html)
