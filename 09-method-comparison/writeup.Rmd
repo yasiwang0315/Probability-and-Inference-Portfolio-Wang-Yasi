@@ -1,29 +1,53 @@
 ---
 title: "09-method-comparison"
 author: Yasi Wang
-date: 10/30/2019
+date: 11/27/2019
 output: 
   html_notebook: 
     highlight: tango
     theme: cosmo
 ---
 
-Last time, we've discussed about confidence interval (CI) and coverage probability. This time, we will do more simulations with different estimations and caculate their corresponding coverage probabilities.
+Last time, we've discussed about confidence interval (CI) and coverage probability. This time, we will do more simulations with different estimations and calculate their corresponding coverage probabilities.
 
 # Introduction
 ***
 
 ## Method of Moment estimation
+**Method of moment** is a method of estimation of population parameters. It usually contains five steps:
 
+1. Express the population moments as functions of the parameters of interest.
+    + Choose a parametric distribution
+    + Identify the distribution parameters.
+
+2. Calculate sample moments.
+3. Create system of equations equating distribution moments to sample moments.
+4. Solve system of equations for distribution parameters.
+5. $\hat{F}_X = F_X(x | \theta = \hat{\theta})$
 
 ## Kernal Density estimation
+**Kernel density estimation** (KDE) is a non-parametric way to estimate the probability density function of a random variable. It is a fundamental data smoothing problem where inferences about the population are made, based on a finite data sample. We usually use `gaussian` kernal function.
+
 
 ## Bootstrap estimation
+The general idea of **bootstrap** is to create new samples of size N by sampling rows with replacement. When we only have single sample, we can use bootrstrap to simulate from the sample. This technique allows estimation of the sampling distribution of almost any statistic using random sampling methods. Generally, it belongs to resampling methods.
+
+<center>
+![](bootstrap.svg){ width=60% } 
+</center>
+
+Usually, we use `array(sample(data, N * R, replace = TRUE), dim = c(N, R))` to generate data from bootstrap measure.
 
 ```{r include=FALSE}
 library(tidyverse)
 ```
 
+
+# Simulation
+***
+**Step 1: Generate data: create the function that can generate data with normal distribution or gamma distribution.**
+
+For convenience, I added for to each value if it is normal distribution. Thus all the values can be positive.
 
 ```{r}
 generate_data <- function(N, dist, sh, sc) {
@@ -35,27 +59,16 @@ generate_data <- function(N, dist, sh, sc) {
 }
 ```
 
+**Step 2: Estimate confidence interval: create the function that can return the 95% confidence interval from the approximated sampling distribution.**
+
+There are four estimation methods: Method of moment on normal distribution, Method of moment on gamma distribution, kernal density distribution estimate, bootstrap estimate. I combined them together and calculated the corresponding CI.
 
 ```{r}
-estimate.ci <- function(data, mod, R = 10, par.int, smoo = 0.3) {
+estimate.ci <- function(data, mod, R = 5000, par.int, smoo = 0.3) {
   N <- length(data)
   sum.measure <- get(par.int)
 
-  # if (mod == "MMnorm") {
-  #    mm.mean <- mean(data)
-  #    mm.sd <- sd(data)
-  #    samp.dist <- NA
-  #    
-  #    for (i in 1:R) {
-  #     sim.data <- rnorm(length(data), mm.mean, mm.sd)
-  #     if(par.int == "median") {
-  #       samp.dist <- median(sim.data)
-  #       } else if(par.int == "min") {
-  #         samp.dist <- min(sim.data)
-  #       }
-  #    }
-
-  if (mod=="MMnorm"){ # assume the data is normal
+  if (mod=="MMnorm"){ 
     mm.mean <- mean(data)
     mm.sd <- sd(data)
     sim.data <- rnorm(length(data),mm.mean,mm.sd)
@@ -70,7 +83,7 @@ estimate.ci <- function(data, mod, R = 10, par.int, smoo = 0.3) {
     sim.data <- array(rgamma(length(data)*R, shape = mm.shape, scale = mm.scale), dim = c(N, R))
     samp.dist <- apply(sim.data, 2, FUN = sum.measure)
     
-  } else if(mod == "KDE") { # Oct.9th slide
+  } else if(mod == "KDE") { 
     ecdfstar <- function(t, data, smooth = smoo) {
       outer(t, data, function(a, b) {pnorm(a, b, smooth)}) %>% rowMeans
       }
@@ -98,7 +111,14 @@ estimate.ci <- function(data, mod, R = 10, par.int, smoo = 0.3) {
   return(quantile(samp.dist, c(0.05, 0.95)))
 }
 
+```
 
+
+**Step 3: Capture the parameters of interest.**
+
+After calculating the CI, I created the function to estimate whether the parameter (min or median) is captured by that range.
+
+```{r}
 capture_par <- function(ci, true.par) {
   1 * (ci[1] < true.par & true.par < ci[2])
 }
@@ -106,9 +126,10 @@ capture_par <- function(ci, true.par) {
 ```
 
 
-```{r}
-# One replicate
+**Step 4: All together.**
+With N = 201, we put all the things together to calculate the coverage probabilities in each condition.
 
+```{r}
 N <- 201
 shape.set <- 1.4
 scale.set <- 3
@@ -119,23 +140,6 @@ true.norm.min <- mean(apply(array(rnorm(N*10000), dim = c(N, 10000)), 2, min))
 true.gamma.med <- qgamma(0.5, shape = shape.set, scale = scale.set) 
 true.gamma.min <- mean(apply(array(rgamma(N*10000, shape = shape.set, scale = scale.set), dim = c(N, 10000)), 2, min))
   
-dist1 <- "norm"
-model1 <- "MMnorm"
-par.int1 <- "median"
-
-cover <- NA
-for (sims in 1:100) {
-  cover[sims] <- generate_data(N, dist1) %>% estimate.ci(mod = model1, par.int = par.int1, R = 1000) %>% capture_par(true.par = true.norm.med + 4)
-
-}
-
-mean(cover)
-```
-
-
-
-
-```{r}
 simsettings <- expand.grid(dist = c("norm", "gamma"), model = c("MMnorm", "MMgamma", "KDE", "Boot"), par.int = c("median", "min"), cov.prob =NA, stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)
 
 
@@ -155,8 +159,8 @@ for (k in 1:nrow(simsettings)){
   }
   cover <- NA
   
-  for (sims in 1:100) {
-    cover[sims] <- generate_data(N, dist1, sh = shape.set, sc = scale.set) %>% estimate.ci(mod = model1, par.int = par.int1, R = 1000) %>% capture_par(true.par = true.par1)
+  for (sims in 1:1000) {
+    cover[sims] <- generate_data(N, dist1, sh = shape.set, sc = scale.set) %>% estimate.ci(mod = model1, par.int = par.int1, R = 5000) %>% capture_par(true.par = true.par1)
     simsettings[k ,4] <- mean(cover)
 
   }
@@ -169,16 +173,14 @@ simsettings
 ```
 
 
-
-## Method of moments with 
-
-
 # Conclusion
+***
+Among all the estimation methods, we can find that:
 
-Method of moments often has best simulating accuracy than bootstrap if the distribution is assume is right. I think it is because method of moments is an estimation method with parameters. However, when the true distribution is gamma distribution, if fails to capture the minimum value of sample distribution.
+- method of moments is the best method (except for MMnorm on gamma distribution or MMgamma on normal distribution) that can capture more than 94% of the parameters of interest. Also, it estimates more accurate when true distribution is standard normal distribution. 
+- bootstrap methods estimates better on capturing median than min. 
+- kernal density estimation could have almost 90% accuracy when the parameter is median. When capturing min, this method would fail when the true distribution is gamma distribution.
+- On the whole, capturing median is much easier than min in either distribution. This is probability because median is more robust to outliers. Therefore, the coverage probability will be high enough in whatever estimation methods.
 
-Bootstrap estimates with more accuracy when the true distribution is standard norml, whereas its coverage probability becomes really low when the true distribution is gamm distribution.
+Coverage probability will be affected by many factors. For example, the estimation methods, the parameters of interest, the population distributions, etc. Only knowing which is the best estimation method in different conditions, can we get the most accurate result in the simulation process.
 
-Compared two parameters, it's much more easier for estimation method to cathch median value of true distribution than minimum value of each sample in standard normal distribution. It could be related my old blogs, which reveals the median value of samples from normal distribution is much less volatile than other values. Therefore, the coverage probability is high.
-
-As I finally successed in using kernal density estimation to simulate distribution, I don't think it is a good way to estimate coverage probability. As it is aimed to plot a smooth graph of sample distribution and it is a method of non-parametric estimation. The result is the same as I expected, kernal density estimation has relatively low accuracy in gamma distribution. It performs only good when estimating standard normal distribution.
