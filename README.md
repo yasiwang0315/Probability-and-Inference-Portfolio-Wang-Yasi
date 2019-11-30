@@ -11,7 +11,7 @@ Project 9:
 [relative HTML file](09-method-comparison/writeup.nb.html)
 
 Project 8:
-[relative HTML file](09-coverage-probability/writeup.nb.html)
+[relative HTML file](08-coverage-probability/writeup.nb.html)
 
 Project 6:
 [relative HTML file](06-sequence_parrel/writeup.nb.html)
