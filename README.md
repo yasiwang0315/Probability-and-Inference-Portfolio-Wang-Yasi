@@ -2,33 +2,33 @@
 Data science 5620: Probability
 
 Project 11:
-[relative HTML file](11-correlation-power/writeup.nb.html)
+[11-correlation-power](11-correlation-power/writeup.nb.html)
 
 Project 10:
-[relative HTML file](10-CLT-approximation/writeup.nb.html)
+[10-CLT-approximation](10-CLT-approximation/writeup.nb.html)
 
 Project 9:
-[relative HTML file](09-method-comparison/writeup.nb.html)
+[09-method-comparison](09-method-comparison/writeup.nb.html)
 
 Project 8:
-[relative HTML file](08-coverage-probability/writeup.nb.html)
+[08-coverage-probability](08-coverage-probability/writeup.nb.html)
 
 Project 6:
-[relative HTML file](06-sequence_parrel/writeup.nb.html)
+[06-sequence_parrel](06-sequence_parrel/writeup.nb.html)
 
 Project 5:
-[relative HTML file](05-quantile-error/writeup.html)
+[05-quantile-error](05-quantile-error/writeup.html)
 
 Project 4:
-[relative HTML file](04-world-series-home-field/writeup.html)
+[04-world-series-home-field](04-world-series-home-field/writeup.html)
 
 Project 3:
-[relative HTML file](03-discrete-probability-calculations/writeup.html)
+[03-discrete-probability-calculations](03-discrete-probability-calculations/writeup.html)
 
 Project 2:
-[relative HTML file](02-monte-carlo-error/02-monte-carlo-error.nb.html)
+[02-monte-carlo-error](02-monte-carlo-error/02-monte-carlo-error.nb.html)
 
 Project 1:
-[relative HTML file](01-roulette-simulation/writeup.nb.html)
+[01-roulette-simulation](01-roulette-simulation/writeup.nb.html)
 
 
