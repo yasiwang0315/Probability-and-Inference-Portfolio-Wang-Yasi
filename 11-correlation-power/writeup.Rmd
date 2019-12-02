@@ -34,7 +34,7 @@ We assume that one measurement, call it A, may reflect the severity of disease b
 
 In this blog, I will perform a power and sample size calculation to show the correlation between two measurements and thus decide whether measurement B can replace measurement A for research.
 
-- H<sub>0</sub>: The correlation of A and B is 0.8.
+- H<sub>0</sub>: The correlation of A and B is 0.8 or smaller than 0.8.
 - H<sub>1</sub>: The correlation of A and B is higher than 0.8.
 
 # Simulation
