@@ -608,5 +608,5 @@ df <- nhgh
 cor.test(df$armc, df$arml)
 
 ```
-`answer:` Our null hypothesis is that the arm circumferance and arm length has no correlation. Using the cor.test (CLT short cut), we can find that the sample estimated correlation between arm circumferance and arm length is 0.450, which falls in the 95% CI (0.48, 0.52). The p-value is smaller than 0.05. We can conclude that, in the alpha = 0.05 level, we fail to reject the null, which  means that the sample correlationa is a reasonable measure of association for this data.
+`answer:` Our null hypothesis is that the arm circumferance and arm length has no correlation. Using the cor.test (CLT short cut), we can find that the sample estimated correlation between arm circumferance and arm length is 0.50. Because 0 is not in the 95% CI (0.48, 0.52) and  p-value is smaller than 0.05, we can conclude that, in the alpha = 0.05 level, we reject the null, which means that the sample correlationa is a reasonable measure of association for this data.
 
